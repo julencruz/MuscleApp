@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "812829890031",
+    "project_id": "muscle-app-2647d",
+    "storage_bucket": "muscle-app-2647d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:812829890031:android:3a159818ce852cf9e1d21a",
+        "android_client_info": {
+          "package_name": "com.example.muscle_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArKwlXCCV5MfgZnIz25k9j6bKlwtHOf3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:812829890031:android:043b2a452092432be1d21a",
+        "android_client_info": {
+          "package_name": "com.muscleapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArKwlXCCV5MfgZnIz25k9j6bKlwtHOf3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
