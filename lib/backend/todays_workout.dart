@@ -24,6 +24,30 @@ class TodaysWorkout {
     return message.replaceAll('{nextDay}', nextDay);
   }
 
+  static Future<Map<String, dynamic>?> getWorkoutForDay(String dayName) async {
+    final activeRoutine = await ActiveRoutine.getActiveRoutine();
+    if (activeRoutine != null) {
+      var days = activeRoutine["days"];
+      for (var day in days) {
+        if (day['weekDay'] == dayName) {
+          return {
+            'dayName': day['dayName'],
+            'exercises': List<Map<String, dynamic>>.from(day['exercises'])
+          };
+        }
+      }
+      // Si no hay ejercicios para ese día, devuelve un mensaje de descanso
+      return {
+        'dayName': 'Rest Day',
+        'routineName': activeRoutine['name'] ?? 'Active Routine',
+        'nextWorkoutDay': dayName,
+        'restMessage': _getRandomRestMessage(dayName),
+        'exercises': []
+      };
+    }
+    return null;
+  }
+
   static Future<Map<String, dynamic>?> getTodaysWorkout() async {
     List<String> weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 

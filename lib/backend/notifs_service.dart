@@ -177,8 +177,8 @@ class NotifsService {
 
     await _localNotificationsPlugin.zonedSchedule(
       999, // ID especial para este tipo de recordatorio
-      "Don't forget your progress!",
-      "Remember to save today's workout stats",
+      "Don't forget your progress!😟",
+      "Remember to save today's workout stats⌛",
       scheduledDate,
       platformChannelSpecifics,
       uiLocalNotificationDateInterpretation:

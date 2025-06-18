@@ -990,171 +990,363 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      style: const TextStyle(
-                        fontSize: 24,
-                        color: Color(0xFF000000),
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.6,
-                      ),
-                      children: <TextSpan>[
-                        const TextSpan(text: 'Today - '),
-                        TextSpan(
-                          text: '$dayName',
-                          style: const TextStyle(
-                            color: Color(0xFFA90015),
-                            fontWeight: FontWeight.w600, // Semibold
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  WarmUpButton(dayRoutine: exercises),
-                ],
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  // Confirmación simple
-                  bool? confirm = await showDialog<bool>(
+              // Day selector
+              GestureDetector(
+                onTap: () async {
+                  // Obtén los días de la rutina activa
+                  final routine = await ActiveRoutine.getActiveRoutine();
+                  final days = routine?['days'] ?? [];
+                  
+                  final selectedDay = await showDialog<String>(
                     context: context,
                     barrierDismissible: true,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
+                    builder: (context) {
+                      return Dialog(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        backgroundColor: Colors.white,
-                        title: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFA90015).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(
-                                Icons.done_all_rounded,
-                                color: Color(0xFFA90015),
-                                size: 24,
-                              ),
+                        elevation: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Colors.white,
+                                Colors.grey.shade50,
+                              ],
                             ),
-                            const SizedBox(width: 12),
-                            const Expanded(
-                              child: Text(
-                                'Are you sure?',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF2D2D2D),
+                          ),
+                          child: SizedBox(
+                            width: double.maxFinite,
+                            height: 400,
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today,
+                                      color: const Color(0xFFA90015),
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text(
+                                      'Choose a day',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF000000),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
+                                const SizedBox(height: 20),
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: days.length,
+                                    itemBuilder: (context, i) {
+                                      final day = days[i];
+                                      return Container(
+                                        margin: const EdgeInsets.only(bottom: 8),
+                                        child: Material(
+                                          color: Colors.transparent,
+                                          child: InkWell(
+                                            borderRadius: BorderRadius.circular(12),
+                                            onTap: () => Navigator.pop(context, day['weekDay']),
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                                vertical: 14,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(12),
+                                                border: Border.all(
+                                                  color: Colors.grey.shade200,
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    width: 8,
+                                                    height: 8,
+                                                    decoration: const BoxDecoration(
+                                                      color: Color(0xFFA90015),
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  Text(
+                                                    day['weekDay'] ?? '',
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w500,
+                                                      color: Color(0xFF000000),
+                                                    ),
+                                                  ),
+                                                  const Spacer(),
+                                                  Icon(
+                                                    Icons.arrow_forward_ios,
+                                                    size: 14,
+                                                    color: Colors.grey.shade400,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: () => Navigator.pop(context, null),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 10,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        content: const Text(
-                          'You are about to mark all exercises as done for today. This action cannot be undone.',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Color(0xFF666666),
-                            height: 1.4,
                           ),
                         ),
-                        actionsPadding: const EdgeInsets.all(20),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(
-                                color: Color(0xFF666666),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () => Navigator.of(context).pop(true),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFA90015),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: const Text(
-                              'Done',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
                       );
                     },
                   );
 
-                  if (confirm != true) return;
-
-                  // Código original ejecutado solo después de confirmar
-                  setState(() {
-                    for (int i = 0; i < seriesDone.length; i++) {
-                      for (int j = 0; j < seriesDone[i].length; j++) {
-                        seriesDone[i][j] = true;
-                      }
+                  if (selectedDay != null) {
+                    final workout = await TodaysWorkout.getWorkoutForDay(selectedDay);
+                    if (workout != null) {
+                      setState(() {
+                        widget.workoutData.clear();
+                        widget.workoutData.addAll(workout);
+                        isLoading = true;
+                      });
+                      await _initializeWorkoutData();
                     }
-                  });
-
-                  bool focus = false;
-                  await StatsSaver.saveStats(
-                    currentWeights,
-                    currentReps,
-                    exercises,
-                    seriesDone,
-                    focus
-                  );
-
-                  await NotifsService.cancelEndOfDayReminder();
-
-                  setState(() {
-                    _forceShowCompletedMessage = true;
-                  });
+                  }
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFA90015), // Un rojo un poco más apagado
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12), // Bordes menos redondeados
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: Colors.grey.shade100,
+                      width: 1,
+                    ),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Padding más reducido
-                  elevation: 2, // Elevación más sutil
-                ),
-                child: const Text(
-                  'Done',
-                  style: TextStyle(
-                    fontSize: 16, // Tamaño de fuente ligeramente menor
-                    fontWeight: FontWeight.w600, // Peso de fuente un poco menos intenso
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: RichText(
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: Color(0xFF000000),
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.6,
+                            ),
+                            children: <TextSpan>[
+                              const TextSpan(text: 'Today - '),
+                              TextSpan(
+                                text: dayName.length > 15 ? '${dayName.substring(0, 15)}...' : dayName,
+                                style: const TextStyle(
+                                  color: Color(0xFFA90015),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.keyboard_arrow_down,
+                        color: const Color(0xFFA90015),
+                        size: 20,
+                      ),
+                    ],
                   ),
                 ),
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Botones debajo del selector de día
+              Row(
+                children: [
+                  Expanded(
+                    child: WarmUpButton(dayRoutine: exercises),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () async {
+                      // Confirmación simple
+                      bool? confirm = await showDialog<bool>(
+                        context: context,
+                        barrierDismissible: true,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            backgroundColor: Colors.white,
+                            title: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFA90015).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(
+                                    Icons.done_all_rounded,
+                                    color: Color(0xFFA90015),
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                const Expanded(
+                                  child: Text(
+                                    'Are you sure?',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF2D2D2D),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            content: const Text(
+                              'You are about to mark all exercises as done for today. This action cannot be undone.',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF666666),
+                                height: 1.4,
+                              ),
+                            ),
+                            actionsPadding: const EdgeInsets.all(20),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(false),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    color: Color(0xFF666666),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFA90015),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: const Text(
+                                  'Done',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+
+                      if (confirm != true) return;
+
+                      // Código original ejecutado solo después de confirmar
+                      setState(() {
+                        for (int i = 0; i < seriesDone.length; i++) {
+                          for (int j = 0; j < seriesDone[i].length; j++) {
+                            seriesDone[i][j] = true;
+                          }
+                        }
+                      });
+
+                      bool focus = false;
+                      await StatsSaver.saveStats(
+                        currentWeights,
+                        currentReps,
+                        exercises,
+                        seriesDone,
+                        focus
+                      );
+
+                      await NotifsService.cancelEndOfDayReminder();
+
+                      setState(() {
+                        _forceShowCompletedMessage = true;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFA90015),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      elevation: 2,
+                    ),
+                    child: const Text(
+                      'Done',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
+        
         const SizedBox(height: 16),
+        
         ...exercises.asMap().entries.map((entry) {
           final index = entry.key;
           final exercise = entry.value;
@@ -1195,7 +1387,9 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
             ),
           );
         }).toList(),
+        
         const SizedBox(height: 30),
+        
         Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -1230,31 +1424,31 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                     builder: (BuildContext context) {
                       return AlertDialog(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(28.0), // Un poco más redondeado
+                          borderRadius: BorderRadius.circular(28.0),
                         ),
                         backgroundColor: Colors.white,
-                        elevation: 8, // Añadimos una ligera elevación para la sombra
-                        titlePadding: const EdgeInsets.only(top: 32, left: 32, right: 32, bottom: 16), // Más espacio arriba y abajo del título
+                        elevation: 8,
+                        titlePadding: const EdgeInsets.only(top: 32, left: 32, right: 32, bottom: 16),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 32),
-                        actionsPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 24), // Espacio inferior en los botones
+                        actionsPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
                         title: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start, // Alineamos el texto a la izquierda
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               "Focus Mode",
                               style: TextStyle(
-                                fontWeight: FontWeight.w800, // Más negrita
-                                fontSize: 28, // Un poco más grande
+                                fontWeight: FontWeight.w800,
+                                fontSize: 28,
                                 color: Colors.black87,
                               ),
                             ),
                             const SizedBox(height: 12),
                             Container(
-                              height: 4, // Un poco más grueso
-                              width: 72, // Un poco más ancho
+                              height: 4,
+                              width: 72,
                               decoration: BoxDecoration(
                                 color: const Color(0xFFA90015),
-                                borderRadius: BorderRadius.circular(4), // Bordes más redondeados
+                                borderRadius: BorderRadius.circular(4),
                               ),
                             ),
                           ],
@@ -1263,17 +1457,17 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(18), // Un poco más de padding
+                              padding: const EdgeInsets.all(18),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: Colors.grey[300]!, // Un gris un poco más oscuro
+                                  color: Colors.grey[300]!,
                                   width: 2,
                                 ),
                               ),
                               child: const Icon(
                                 Icons.do_not_disturb_on_outlined,
-                                size: 60, // Un poco más grande
+                                size: 60,
                                 color: Color(0xFFA90015),
                               ),
                             ),
@@ -1281,8 +1475,8 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                             const Text(
                               "Silence distractions and focus on your workout.",
                               style: TextStyle(
-                                fontSize: 17, // Un poco más grande
-                                color: Colors.black87, // Texto principal más oscuro
+                                fontSize: 17,
+                                color: Colors.black87,
                                 height: 1.5,
                               ),
                               textAlign: TextAlign.center,
@@ -1304,36 +1498,36 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14), // Más redondeado
+                                borderRadius: BorderRadius.circular(14),
                               ),
                             ),
                             child: const Text(
                               "Cancel",
                               style: TextStyle(
-                                fontWeight: FontWeight.w600, // Más énfasis
+                                fontWeight: FontWeight.w600,
                                 color: Colors.black54,
-                                fontSize: 16, // Un poco más grande
+                                fontSize: 16,
                               ),
                             ),
                             onPressed: () => Navigator.of(context).pop(),
                           ),
-                          const SizedBox(width: 8), // Espacio entre los botones
+                          const SizedBox(width: 8),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFA90015),
                               foregroundColor: Colors.white,
-                              elevation: 4, // Ligera elevación en el botón principal
+                              elevation: 4,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14), // Más redondeado
+                                borderRadius: BorderRadius.circular(14),
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16), // Un poco más de padding vertical
-                              shadowColor: const Color(0xFFA90015).withOpacity(0.4), // Sombra un poco más intensa
+                              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                              shadowColor: const Color(0xFFA90015).withOpacity(0.4),
                             ),
                             child: const Text(
                               "Focus!",
                               style: TextStyle(
-                                fontWeight: FontWeight.w700, // Aún más énfasis
-                                fontSize: 16, // Un poco más grande
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
                               ),
                             ),
                             onPressed: () {

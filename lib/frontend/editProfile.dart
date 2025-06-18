@@ -21,13 +21,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _accentColor = const Color(0xFFD32F2F);
   final _background = Colors.grey.shade50;
 
+  bool _isLoading = true; // <--- Añadido
+
   @override
   void initState() {
     super.initState();
     // Cargar datos del usuario al iniciar
     _loadUserData();
   }
-
 
   // Método para cargar los datos del usuario
   Future<void> _loadUserData() async {
@@ -45,11 +46,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _nameController.text = userData['nombre'] ?? '';
             _gender = userData['genero'] ?? 'Woman';
             _unit = userData['unidades'] ?? 'Metric';
+            _unit = _unit[0].toUpperCase() + _unit.substring(1).toLowerCase();
+            _isLoading = false; // <--- Solo aquí dejamos de cargar
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
           });
         }
       } catch (e) {
         print('Error al cargar los datos del usuario: $e');
+        setState(() {
+          _isLoading = false;
+        });
       }
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -152,6 +166,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     UpdateDock.updateSystemUI(Colors.grey[50]!);
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          surfaceTintColor: Colors.transparent,
+          backgroundColor: Colors.white,
+          centerTitle: true,
+          title: const Text('Edit Profile'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black87),
+            onPressed: () {
+              Navigator.pop(context);
+              UpdateDock.updateSystemUI(Colors.white);
+            },
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(

@@ -36,40 +36,49 @@ class _ProfilePageState extends State<ProfilePage> {
   final _textColor = const Color(0xFF2A2522);
   final _secondaryTextColor = Colors.grey.shade600;
 
+  bool _isLoading = true; // <--- Añade esto
+
   @override
   void initState() {
     super.initState();
+    _loadAllData();
+  }
+
+  Future<void> _loadAllData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      _loadUserName(user.uid);
-      _loadActiveRoutine();
-      StatsSaver.fetchExerciseStats(user.uid).then((data) {
-        setState(() {
-          exerciseData = data;
-          if (!exerciseData.containsKey(_selectedExerciseId) && exerciseData.isNotEmpty) {
-            _selectedExerciseId = exerciseData.keys.first;
-          }
-          if (activeRoutine != null) {
-            DPW = activeRoutine['amount'] ?? 0;
-            userData[1] = activeRoutine['rName']?.toString() ?? 'None';
-          }
-        });
+      await _loadUserName(user.uid);
+      await _loadActiveRoutine();
+      final exerciseStats = await StatsSaver.fetchExerciseStats(user.uid);
+      final propData = await StatsSaver.fetchProportionData(user.uid);
+
+      setState(() {
+        exerciseData = exerciseStats;
+        if (!exerciseData.containsKey(_selectedExerciseId) && exerciseData.isNotEmpty) {
+          _selectedExerciseId = exerciseData.keys.first;
+        }
+        if (activeRoutine != null) {
+          DPW = activeRoutine['amount'] ?? 0;
+          userData[1] = activeRoutine['rName']?.toString() ?? 'None';
+        }
+        proportionData = propData;
+        _isLoading = false; // <--- Solo aquí dejamos de cargar
       });
-      StatsSaver.fetchProportionData(user.uid).then((data) {
-        setState(() => proportionData = data);
+    } else {
+      setState(() {
+        _isLoading = false;
       });
     }
   }
 
-  void _loadUserName(String userId) {
-    FirebaseFirestore.instance.collection('users').doc(userId).get().then((DocumentSnapshot document) {
-      if (document.exists) {
-        final userData = document.data() as Map<String, dynamic>;
-        if (userData.containsKey('nombre')) {
-          setState(() => this.userData[0] = userData['nombre']);
-        }
+  Future<void> _loadUserName(String userId) async {
+    final document = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    if (document.exists) {
+      final userData = document.data() as Map<String, dynamic>;
+      if (userData.containsKey('nombre')) {
+        this.userData[0] = userData['nombre'];
       }
-    });
+    }
   }
 
   Future<void> _loadActiveRoutine() async {
@@ -95,6 +104,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: _backgroundColor,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       backgroundColor: _backgroundColor,
       appBar: AppBar(
@@ -555,7 +570,7 @@ Widget _buildRoutineStat(String icon, String title, String value) {
   Widget _buildProportionChart() {
     // Si no hay datos realmente no pintamos nada
     if (proportionData.isEmpty || proportionData.every((v) => v == 0.0)) {
-      return const Center(child: Text("No hay datos de proporción aún."));
+      return const Center(child: Text("No proportion data available"));
     }
 
     final double total = proportionData.fold(0.0, (a, b) => a + b);
