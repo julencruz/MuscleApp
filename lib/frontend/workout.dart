@@ -34,7 +34,20 @@ class _WorkoutPageState extends State<WorkoutPage> {
     super.initState();
     NotifsService.requestPermissions();
     _refreshAchievments();
+    _scheduleEndOfDayReminderIfNeeded();
   }
+
+Future<void> _scheduleEndOfDayReminderIfNeeded() async {
+  final workoutData = await TodaysWorkout.getTodaysWorkout();
+  final hasExercises = workoutData != null &&
+      workoutData['exercises'] != null &&
+      workoutData['exercises'].isNotEmpty;
+
+  if (hasExercises) {
+    // Si hay ejercicios programados para hoy, programa el recordatorio
+    await NotifsService.scheduleEndOfDayReminder();
+  }
+}
 
   void _refreshAchievments() async {
     await AchievementManager().refresh();
@@ -1009,6 +1022,95 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
               ),
               ElevatedButton(
                 onPressed: () async {
+                  // Confirmación simple
+                  bool? confirm = await showDialog<bool>(
+                    context: context,
+                    barrierDismissible: true,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        backgroundColor: Colors.white,
+                        title: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFA90015).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.done_all_rounded,
+                                color: Color(0xFFA90015),
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                'Are you sure?',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF2D2D2D),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        content: const Text(
+                          'You are about to mark all exercises as done for today. This action cannot be undone.',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF666666),
+                            height: 1.4,
+                          ),
+                        ),
+                        actionsPadding: const EdgeInsets.all(20),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: Color(0xFF666666),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFA90015),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Text(
+                              'Done',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                  if (confirm != true) return;
+
+                  // Código original ejecutado solo después de confirmar
                   setState(() {
                     for (int i = 0; i < seriesDone.length; i++) {
                       for (int j = 0; j < seriesDone[i].length; j++) {
@@ -1026,13 +1128,14 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                     focus
                   );
 
+                  await NotifsService.cancelEndOfDayReminder();
+
                   setState(() {
                     _forceShowCompletedMessage = true;
                   });
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFA90015,
-                  ), // Un rojo un poco más apagado
+                  backgroundColor: const Color(0xFFA90015), // Un rojo un poco más apagado
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12), // Bordes menos redondeados

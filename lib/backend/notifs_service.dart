@@ -90,21 +90,85 @@ class NotifsService {
   }
 
   static Future<void> scheduleWorkoutNotification({
-    required int id,
-    required String title,
-    required String body,
-    required tz.TZDateTime scheduledDate,
-    bool enableVibration = true,
-  }) async {
-    print("Scheduled workout notification: $title, $body, $scheduledDate");
+      required int id,
+      required String title,
+      required String body,
+      required tz.TZDateTime scheduledDate,
+      bool enableVibration = true,
+    }) async {
+      print("Scheduled workout notification: $title, $body, $scheduledDate");
+      AndroidNotificationDetails androidPlatformChannelSpecifics =
+          const AndroidNotificationDetails(
+        'workout_routine_channel',
+        'Workout Routine Notifications',
+        channelDescription: 'Notifications for your daily workout routines',
+        importance: Importance.max,
+        priority: Priority.max,
+        playSound: true, // Usará el sonido predeterminado del sistema
+        enableVibration: true,
+      );
+
+      NotificationDetails platformChannelSpecifics =
+          NotificationDetails(android: androidPlatformChannelSpecifics);
+
+      await _localNotificationsPlugin.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduledDate,
+        platformChannelSpecifics,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+    }
+
+    
+
+    // Añadir esta función para cancelar solo las notificaciones de rutina
+    static Future<void> cancelWorkoutNotifications() async {
+      // Obtener las notificaciones pendientes
+      final pendingNotifications = await _localNotificationsPlugin.pendingNotificationRequests();
+      
+      // Cancelar solo notificaciones de rutina (IDs 1000 y superiores)
+      for (var notification in pendingNotifications) {
+        if (notification.id >= 1000) {
+          await _localNotificationsPlugin.cancel(notification.id);
+          print('Notificación de rutina con ID ${notification.id} cancelada');
+        }
+      }
+    }
+
+    static Future<void> scheduleEndOfDayReminder() async {
+    // Cancelar cualquier recordatorio existente primero
+    await _localNotificationsPlugin.cancel(999); // ID especial para el recordatorio
+
+    // Obtener la fecha actual
+    final now = tz.TZDateTime.now(tz.local);
+    
+    // Crear la fecha para hoy a las 22:00
+    var scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      22, // 10 PM
+      0,
+    );
+
+    // Si ya pasó la hora, no programar
+    if (now.isAfter(scheduledDate)) {
+      return;
+    }
+
     AndroidNotificationDetails androidPlatformChannelSpecifics =
         const AndroidNotificationDetails(
-      'workout_routine_channel',
-      'Workout Routine Notifications',
-      channelDescription: 'Notifications for your daily workout routines',
-      importance: Importance.max,
-      priority: Priority.max,
-      playSound: true, // Usará el sonido predeterminado del sistema
+      'general',
+      'General Notifications',
+      channelDescription: 'Notifications for general purposes',
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
       enableVibration: true,
     );
 
@@ -112,29 +176,22 @@ class NotifsService {
         NotificationDetails(android: androidPlatformChannelSpecifics);
 
     await _localNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
+      999, // ID especial para este tipo de recordatorio
+      "Don't forget your progress!",
+      "Remember to save today's workout stats",
       scheduledDate,
       platformChannelSpecifics,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
+
+    print('Recordatorio programado para las 22:00');
   }
 
-  // Añadir esta función para cancelar solo las notificaciones de rutina
-  static Future<void> cancelWorkoutNotifications() async {
-    // Obtener las notificaciones pendientes
-    final pendingNotifications = await _localNotificationsPlugin.pendingNotificationRequests();
-    
-    // Cancelar solo notificaciones de rutina (IDs 1000 y superiores)
-    for (var notification in pendingNotifications) {
-      if (notification.id >= 1000) {
-        await _localNotificationsPlugin.cancel(notification.id);
-        print('Notificación de rutina con ID ${notification.id} cancelada');
-      }
-    }
+  static Future<void> cancelEndOfDayReminder() async {
+    await _localNotificationsPlugin.cancel(999);
+    print('Recordatorio de fin de día cancelado');
   }
 
   static Future<void> scheduleRestNotification({
