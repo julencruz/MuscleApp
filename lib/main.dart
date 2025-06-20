@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:muscle_app/backend/get_active_routine.dart';
 import 'package:muscle_app/backend/notifs_service.dart';
 import 'package:muscle_app/backend/routine_notifs.dart';
 import 'package:muscle_app/backend/update_dock.dart';
+import 'package:muscle_app/theme/app_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'backend/firebase_options.dart';
 import 'package:muscle_app/frontend/login.dart';
 import 'package:muscle_app/frontend/home.dart';
@@ -33,6 +36,28 @@ Future<void> main() async {
   
   await AchievementManager().initialize();
 
+  // Obtener el tema guardado
+  final prefs = await SharedPreferences.getInstance();
+  final savedTheme = prefs.getString('theme') ?? 'system';
+
+  bool useDark;
+
+  if (savedTheme == 'light') {
+    useDark = false;
+  } else if (savedTheme == 'dark') {
+    useDark = true;
+  } else {
+    // Detectar tema del sistema si es 'system'
+    final brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+    useDark = brightness == Brightness.dark;
+  }
+
+  if (useDark) {
+    setDarkThemeColors();
+  } else {
+    setLightThemeColors();
+  }
+
   runApp(const MyApp());
 }
 
@@ -57,8 +82,54 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Muscle App',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey[50]!),
+        colorScheme: backgroundColor == Colors.white
+            ? ColorScheme.fromSeed(
+                seedColor: Colors.white,
+                primary: Colors.white,
+                brightness: Brightness.light,
+                surface: backgroundColor,
+                background: backgroundColor,
+              )
+            : ColorScheme.fromSeed(
+                seedColor: Colors.black,
+                primary: Colors.black,
+                brightness: Brightness.dark,
+                surface: backgroundColor,
+                background: backgroundColor,
+              ),
         useMaterial3: true,
+        // Configurar colores específicos para evitar flashes
+        scaffoldBackgroundColor: backgroundColor,
+        appBarTheme: AppBarTheme(
+          backgroundColor: appBarBackgroundColor,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+            fontSize: 20,
+            color: textColor,
+            letterSpacing: -0.5,
+            fontWeight: FontWeight.w600,
+          ),
+          iconTheme: IconThemeData(color: textColor, size: 32),
+        ),
+        cardColor: cardColor,
+        // Configurar colores adicionales para evitar inconsistencias
+        canvasColor: backgroundColor,
+        dialogBackgroundColor: cardColor,
+        bottomSheetTheme: BottomSheetThemeData(
+          backgroundColor: cardColor,
+          modalBackgroundColor: cardColor,
+        ),
+        // Configurar el color de fondo de los diálogos y overlays
+        cardTheme: CardTheme(
+          color: cardColor,
+          surfaceTintColor: Colors.transparent,
+        ),
+        // Configurar el tema del loading indicator
+        progressIndicatorTheme: ProgressIndicatorThemeData(
+          color: redColor,
+        ),
       ),
       // Añadir soporte para localización
       localizationsDelegates: const [
@@ -75,9 +146,12 @@ class MyApp extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold( 
+            return Scaffold(
+              backgroundColor: backgroundColor, // Asegurar color de fondo consistente
               body: Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  color: redColor, // Color consistente con tu tema
+                ),
               ),
             );
           }

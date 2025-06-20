@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:muscle_app/backend/routine_saver.dart';
 import 'package:muscle_app/backend/workout_generator.dart';
 import 'package:muscle_app/frontend/home.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 class RoutineQuestionnaire extends StatefulWidget {
   const RoutineQuestionnaire({super.key});
@@ -26,7 +27,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
   final Map<String, Color> levelColors = {
     'Beginner': const Color(0xFF2E7D32),  // Green
     'Intermediate': const Color(0xFFFFA000),  // Amber
-    'Expert': const Color(0xFFA90015),  // Red
+    'Expert': redColor,
   };
 
   // Color definitions for each goal
@@ -119,25 +120,25 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
 
     if (step == 0 && level == null){
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Please select a level'),
-          backgroundColor: Color(0xFFA90015),
+          backgroundColor: redColor,
           duration: Duration(milliseconds: 600),
         ),
       );
     } else if (step == 1 && goal == null){
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Please select a goal'),
-          backgroundColor: Color(0xFFA90015),
+          backgroundColor: redColor,
           duration: Duration(milliseconds: 600),
         ),
       );
     } else if (step == 2 && !selectedDays.contains(true)){
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text("Please select at least one day"),
-          backgroundColor: Color(0xFFA90015),
+          backgroundColor: redColor,
           duration: Duration(milliseconds: 600),
         ),
       );
@@ -190,7 +191,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Error al guardar la rutina: ${e.toString()}"),
-            backgroundColor: Color(0xFFA90015),
+            backgroundColor: redColor,
             duration: Duration(seconds: 2),
           ),
         );
@@ -198,9 +199,9 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
     } else {
       // Mostrar mensaje de error si faltan campos
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text("Por favor completa todos los campos requeridos."),
-          backgroundColor: Color(0xFFA90015),
+          backgroundColor: redColor,
           duration: Duration(milliseconds: 600),
         ),
       );
@@ -306,7 +307,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
               duration: const Duration(milliseconds: 300),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               decoration: BoxDecoration(
-                color: isSelected ? optionColor : Colors.white,
+                color: isSelected ? optionColor : cardColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
@@ -327,13 +328,13 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: isSelected 
-                              ? Colors.white.withOpacity(0.3)
+                              ? contraryTextColor.withOpacity(0.3)
                               : optionColor.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           levelIcons[option],
-                          color: isSelected ? Colors.white : optionColor,
+                          color: isSelected ? optionColor : optionColor,
                           size: 24,
                         ),
                       ),
@@ -341,7 +342,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
                       Text(
                         option,
                         style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black87,
+                          color: isSelected ? textColor : textColor,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                         ),
@@ -357,7 +358,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: contraryTextColor,
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -395,7 +396,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
               duration: const Duration(milliseconds: 300),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               decoration: BoxDecoration(
-                color: isSelected ? optionColor : Colors.white,
+                color: isSelected ? optionColor : cardColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
@@ -416,13 +417,13 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: isSelected 
-                              ? Colors.white.withOpacity(0.3)
+                              ? contraryTextColor.withOpacity(0.3)
                               : optionColor.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           goalIcons[option],
-                          color: isSelected ? Colors.white : optionColor,
+                          color: isSelected ? optionColor : optionColor,
                           size: 24,
                         ),
                       ),
@@ -430,7 +431,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
                       Text(
                         option,
                         style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black87,
+                          color: isSelected ? textColor : textColor,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
                         ),
@@ -446,7 +447,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: contraryTextColor,
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -472,9 +473,6 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
   
 
   Widget _buildStepContent() {
-    // Use the fixed accent color for consistent styling
-    const Color accentColor = Color(0xFFA90015);
-    
     switch (step) {
       case 0:
         return Stack(
@@ -484,10 +482,11 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
               children: [
                 Text(
                   'What is your gym level?',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    color: textColor2,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 ...['Beginner', 'Intermediate', 'Expert']
@@ -504,10 +503,10 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
               children: [
                 Text(
                   'What is your goal?',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    color: textColor2,)
                 ),
                 const SizedBox(height: 24),
                 ...['Improve physique', 'Increase strength', 'Improve health']
@@ -522,26 +521,27 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
           children: [
             Text(
               'How much time do you want to train?',
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: textColor2,
+              ),
             ),
             const SizedBox(height: 24),
             Center(
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                 decoration: BoxDecoration(
-                  color: accentColor.withOpacity(0.1),
+                  color: redColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: accentColor, width: 2),
+                  border: Border.all(color: redColor, width: 2),
                 ),
                 child: Text(
                   _selectedTimeLabel,
                   style: Theme.of(context)
                       .textTheme
                       .headlineSmall
-                      ?.copyWith(color: accentColor, fontWeight: FontWeight.bold),
+                      ?.copyWith(color: redColor, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -549,11 +549,11 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
             SliderTheme(
               data: SliderThemeData(
                 trackHeight: 8,
-                activeTrackColor: accentColor,
-                inactiveTrackColor: accentColor.withOpacity(0.2),
-                thumbColor: Colors.white,
+                activeTrackColor: redColor,
+                inactiveTrackColor: redColor.withOpacity(0.2),
+                thumbColor: contraryTextColor,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-                overlayColor: accentColor.withOpacity(0.1),
+                overlayColor: redColor.withOpacity(0.1),
               ),
               child: Slider(
                 value: _sliderValue,
@@ -581,7 +581,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: accentColor.withOpacity(0.1),
+                          color: redColor.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -592,7 +592,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
                             Icons.timer,
                             Icons.emoji_events,
                           ][i % 5],
-                          color: accentColor,
+                          color: redColor,
                           size: 24,
                         ),
                       ),
@@ -611,17 +611,14 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
 
   @override
   Widget build(BuildContext context) {
-    // Use fixed accent color for buttons
-    const Color accentColor = Color(0xFFA90015);
-
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
+        backgroundColor: appBarBackgroundColor,
+        surfaceTintColor: appBarBackgroundColor,
         elevation: 0,
         title: const Text('Tell us about yourself'),
-        foregroundColor: Colors.black,
+        foregroundColor: textColor,
       ),
       body: SafeArea(
         child: Padding(
@@ -641,10 +638,10 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
                         color: index == step
-                            ? accentColor
+                            ? redColor
                             : (index < step
-                                ? accentColor.withOpacity(0.5)
-                                : Colors.grey.withOpacity(0.3)),
+                                ? redColor.withOpacity(0.5)
+                                : failedColor),
                         borderRadius: BorderRadius.circular(5),
                       ),
                     );
@@ -666,7 +663,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
               FilledButton(
                 onPressed: _nextStep,
                 style: FilledButton.styleFrom(
-                  backgroundColor: accentColor,
+                  backgroundColor: redColor,
                   minimumSize: const Size.fromHeight(56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -786,11 +783,6 @@ class _WeekdaysSelectorState extends State<WeekdaysSelector>
 
   @override
   Widget build(BuildContext context) {
-    const Color accentColor = Color(0xFFA90015);
-    const Color unselectedColor = Color(0xFFF5F5F5);
-    const Color textColor = Color(0xFF424242);
-    const Color selectedTextColor = Colors.white;
-
     return AnimatedBuilder(
       animation: _containerController,
       builder: (context, child) {
@@ -803,19 +795,20 @@ class _WeekdaysSelectorState extends State<WeekdaysSelector>
                 padding: const EdgeInsets.only(left: 8.0, bottom: 12.0),
                 child: Text(
                   'Select your training days',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    color: textColor2,)
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14), // Ligeramente aumentado el padding
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: shadowColor,
                       blurRadius: 12,
                       spreadRadius: 0,
                       offset: const Offset(0, 2),
@@ -851,11 +844,11 @@ class _WeekdaysSelectorState extends State<WeekdaysSelector>
                                       height: 40, // Ligeramente aumentado la altura del círculo
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: isSelected ? accentColor : unselectedColor,
+                                        color: isSelected ? redColor : shadowColor,
                                         boxShadow: isSelected
                                             ? [
                                                 BoxShadow(
-                                                  color: accentColor.withOpacity(0.3),
+                                                  color: redColor.withOpacity(0.3),
                                                   blurRadius: 7, // Ligeramente aumentado el blur del shadow
                                                   offset: const Offset(0, 2),
                                                 )
@@ -866,7 +859,7 @@ class _WeekdaysSelectorState extends State<WeekdaysSelector>
                                         child: Text(
                                           widget.weekdaysShort[index],
                                           style: TextStyle(
-                                            color: isSelected ? selectedTextColor : textColor,
+                                            color: isSelected ? textColor : textColor,
                                             fontWeight: FontWeight.w600,
                                             fontSize: 14, // Ligeramente aumentado el tamaño de la fuente
                                           ),
@@ -897,7 +890,7 @@ class _WeekdaysSelectorState extends State<WeekdaysSelector>
                           _getSelectedDaysText(),
                           key: ValueKey<String>(_getSelectedDaysText()),
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Colors.black54,
+                                color: textColor2,
                                 height: 1.2,
                               ),
                         ),

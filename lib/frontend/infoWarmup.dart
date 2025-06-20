@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:muscle_app/backend/exercise_loader.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 
 class InfoWarmupExerciseScreen extends StatefulWidget {
@@ -45,33 +46,31 @@ class _InfoWarmupExerciseScreenState extends State<InfoWarmupExerciseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
+        backgroundColor: appBarBackgroundColor,
         elevation: 0,
-        shadowColor: Colors.grey.withOpacity(0.1),
+        shadowColor: shadowColor,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, size: 32),
+          icon: Icon(Icons.arrow_back, size: 32, color: textColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           _isLoading ? 'Cargando...' : _exerciseData?['name'] ?? 'Ejercicio',
           style: TextStyle(
             fontSize: 20,
-            color: theme.colorScheme.onBackground,
+            color: textColor,
             letterSpacing: -0.5,
           ),
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: redColor))
           : _exerciseData == null
-              ? const Center(child: Text('Ejercicio no encontrado'))
+              ? Center(child: Text('Ejercicio no encontrado', style: TextStyle(color: textColor)))
               : CustomScrollView(
                   slivers: [
                     SliverToBoxAdapter(
@@ -106,14 +105,14 @@ class _InfoWarmupExerciseScreenState extends State<InfoWarmupExerciseScreen> {
         borderRadius: BorderRadius.circular(20),
         child: images.isEmpty
             ? Container(
-                color: Colors.white,
+                color: cardColor,
                 alignment: Alignment.center,
-                child: const Column(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.image_not_supported_rounded, color: Colors.grey, size: 48),
-                    SizedBox(height: 8),
-                    Text('Imagen no disponible', style: TextStyle(color: Colors.grey)),
+                    Icon(Icons.image_not_supported_rounded, color: hintColor, size: 48),
+                    const SizedBox(height: 8),
+                    Text('Imagen no disponible', style: TextStyle(color: hintColor)),
                   ],
                 ),
               )
@@ -127,9 +126,9 @@ class _InfoWarmupExerciseScreenState extends State<InfoWarmupExerciseScreen> {
                       'assets/images/exercises_images/${images[index]}',
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.white,
+                        color: cardColor,
                         alignment: Alignment.center,
-                        child: const Text('Error de imagen'),
+                        child: Text('Error de imagen', style: TextStyle(color: textColor)),
                       ),
                     ),
                   ),
@@ -146,8 +145,8 @@ class _InfoWarmupExerciseScreenState extends State<InfoWarmupExerciseScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: _currentPage == index
-                                  ? const Color(0xFFA90015)
-                                  : Colors.white.withOpacity(0.5),
+                                  ? redColor
+                                  : contraryTextColor.withOpacity(0.5),
                             ),
                           ),
                         ),
@@ -163,11 +162,11 @@ class _InfoWarmupExerciseScreenState extends State<InfoWarmupExerciseScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
+            color: shadowColor,
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -190,10 +189,10 @@ class _InfoWarmupExerciseScreenState extends State<InfoWarmupExerciseScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Text(text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w800,
-          color: Colors.black87,
+          color: textColor,
           letterSpacing: -0.5,
         ),
       ),
@@ -211,12 +210,12 @@ class _InfoWarmupExerciseScreenState extends State<InfoWarmupExerciseScreen> {
             height: 28,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color(0xFFA90015).withOpacity(0.1),
+              color: redColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text('$number',
-              style: const TextStyle(
-                color: Color(0xFFA90015),
+              style: TextStyle(
+                color: redColor,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -227,7 +226,7 @@ class _InfoWarmupExerciseScreenState extends State<InfoWarmupExerciseScreen> {
               style: TextStyle(
                 fontSize: 16,
                 height: 1.4,
-                color: Colors.grey[800],
+                color: textColor,
               ),
             ),
           ),

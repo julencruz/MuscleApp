@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 import 'addExercise.dart';
 import 'package:muscle_app/backend/routine_saver.dart';
 
@@ -36,7 +37,7 @@ class _EditScreenState extends State<EditScreen> {
   List<Map<String, dynamic>> _recentExercises = [];
   final List<bool> _selectedDays = List.filled(7, false);
   final Map<int, List<Map<String, dynamic>>> _exercisesByDay = {};
-  final Map<int, List<Map<String, dynamic>>> _allExercisesByDay = {}; // Guarda TODOS los ejercicios
+  final Map<int, List<Map<String, dynamic>>> _allExercisesByDay = {};
   List<String> _dayTypes = List.filled(7, '');
   static int _currentExerciseId = 10;
 
@@ -52,7 +53,7 @@ class _EditScreenState extends State<EditScreen> {
       if (dayIndex != -1) {
         _selectedDays[dayIndex] = true;
         _exercisesByDay[dayIndex] = [];
-        _allExercisesByDay[dayIndex] = []; // Inicializar en ambos mapas
+        _allExercisesByDay[dayIndex] = [];
         _dayTypes[dayIndex] = day['dayName'] ?? '';
         
         day['exercises'].forEach((exercise) {
@@ -66,7 +67,6 @@ class _EditScreenState extends State<EditScreen> {
             'series': exercise['series'] ?? 3,
           };
           
-          // Añadir a ambos mapas
           _allExercisesByDay[dayIndex]!.add(newExercise);
           _exercisesByDay[dayIndex]!.add(newExercise);
         });
@@ -84,11 +84,8 @@ class _EditScreenState extends State<EditScreen> {
   void _toggleDaySelection(int index) {
     setState(() {
       _selectedDays[index] = !_selectedDays[index];
-      
-      // Asegurar que el día tiene entrada en _allExercisesByDay
       _allExercisesByDay[index] ??= [];
       
-      // Actualizar _exercisesByDay según selección
       if (_selectedDays[index]) {
         _exercisesByDay[index] = List.from(_allExercisesByDay[index]!);
       } else {
@@ -107,7 +104,6 @@ class _EditScreenState extends State<EditScreen> {
 
     if (result != null && result is List<Map<String, dynamic>>) {
       setState(() {
-        // Asegurar que el día tiene entrada en ambos mapas
         _allExercisesByDay[dayIndex] ??= [];
         _exercisesByDay[dayIndex] ??= [];
         
@@ -123,13 +119,11 @@ class _EditScreenState extends State<EditScreen> {
             'series': exercise['series'] ?? 3,
           };
           
-          // Añadir a ambos mapas
           _allExercisesByDay[dayIndex]!.add(newExercise);
           if (_selectedDays[dayIndex]) {
             _exercisesByDay[dayIndex]!.add(newExercise);
           }
 
-          // Actualizar ejercicios recientes
           _recentExercises.removeWhere((ex) => ex['eID'] == exercise['eID']);
           _recentExercises.insert(0, {
             'id': _currentExerciseId,
@@ -159,7 +153,6 @@ class _EditScreenState extends State<EditScreen> {
 
   void _saveRoutine() async {
     try {
-      // Filtrar solo los días seleccionados para guardar
       final exercisesToSave = Map.fromEntries(
         _allExercisesByDay.entries.where((entry) => _selectedDays[entry.key])
       );
@@ -167,7 +160,7 @@ class _EditScreenState extends State<EditScreen> {
       var routines = await RoutineSaver.updateRoutineInUserLibrary(
         _nameController,
         _restTimeController,
-        exercisesToSave, // Usamos el mapa filtrado
+        exercisesToSave,
         _dayTypes,
         _routineID,
         widget.allRoutines.indexOf(widget.routine),
@@ -195,7 +188,6 @@ class _EditScreenState extends State<EditScreen> {
 
   void _onExerciseUpdated(int dayIndex, int exerciseId, Map<String, dynamic> updatedExercise) {
     setState(() {
-      // Actualizar en ambos mapas
       final allExercisesList = _allExercisesByDay[dayIndex];
       if (allExercisesList != null) {
         final exerciseIndex = allExercisesList.indexWhere((exercise) => exercise['id'] == exerciseId);
@@ -223,17 +215,21 @@ class _EditScreenState extends State<EditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
+        backgroundColor: appBarBackgroundColor,
         elevation: 0,
-        shadowColor: Colors.grey.withOpacity(0.1),
+        shadowColor: shadowColor,
         centerTitle: true,
-        title: const Text('Edit Routine'),
+        title: Text('Edit Routine', style: TextStyle(color: textColor)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: textColor),
+          onPressed: () => Navigator.pop(context),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.save_rounded, color: Colors.black),
+            icon: Icon(Icons.save_rounded, color: textColor),
             onPressed: _saveRoutine,
           ),
         ],
@@ -292,11 +288,11 @@ class RoutineTitleAndRestTime extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
+            color: shadowColor,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -307,47 +303,47 @@ class RoutineTitleAndRestTime extends StatelessWidget {
           TextField(
             controller: nameController,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 24),
+            style: TextStyle(fontSize: 24, color: textColor2),
             decoration: InputDecoration(
               hintText: 'Routine Name',
               hintStyle: TextStyle(
-                color: Colors.grey[400],
+                color: textColor2,
                 fontWeight: FontWeight.bold,
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: dividerColor,
                   width: 1,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: Color(0xFFA90015),
+                borderSide: BorderSide(
+                  color: redColor,
                   width: 2,
                 ),
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               suffixIcon: Icon(
                 Icons.edit,
-                color: Colors.grey[400],
+                color: hintColor,
                 size: 20,
               ),
               filled: true,
-              fillColor: Colors.grey[50],
+              fillColor: failedColor,
             ),
           ),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('Rest Time', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('Rest Time', style: TextStyle(fontWeight: FontWeight.bold, color: hintColor)),
               const SizedBox(width: 12),
               Container(
                 width: 100,
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
+                  color: failedColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -355,6 +351,7 @@ class RoutineTitleAndRestTime extends StatelessWidget {
                     Expanded(
                       child: TextField(
                         controller: restTimeController,
+                        style: TextStyle(fontSize: 16, color: textColor),
                         keyboardType: TextInputType.number,
                         textAlign: TextAlign.center,
                         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -364,9 +361,9 @@ class RoutineTitleAndRestTime extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.only(right: 12),
-                      child: Text('sec', style: TextStyle(fontWeight: FontWeight.w600)),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Text('sec', style: TextStyle(fontWeight: FontWeight.w600, color: hintColor)),
                     ),
                   ],
                 ),
@@ -396,11 +393,11 @@ class WeekdaysSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
+            color: shadowColor,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -409,7 +406,7 @@ class WeekdaysSelector extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Weekdays', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+          Text('Weekdays', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: textColor)),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -421,19 +418,19 @@ class WeekdaysSelector extends StatelessWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: selectedDays[index] ? const Color(0xFFA90015) : Colors.white,
+                    color: selectedDays[index] ? redColor : cardColor,
                     border: Border.all(
-                      color: selectedDays[index] ? Colors.transparent : Colors.grey.withOpacity(0.2),
+                      color: selectedDays[index] ? Colors.transparent : dividerColor,
                     ),
                     boxShadow: selectedDays[index]
-                        ? [BoxShadow(color: const Color(0xFFA90015).withOpacity(0.2), blurRadius: 8)]
+                        ? [BoxShadow(color: redColor.withOpacity(0.2), blurRadius: 8)]
                         : null,
                   ),
                   child: Center(
                     child: Text(
                       weekdaysShort[index],
                       style: TextStyle(
-                        color: selectedDays[index] ? Colors.white : Colors.grey[800],
+                        color: selectedDays[index] ? Colors.white : textColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -457,7 +454,7 @@ class ExerciseDay extends StatefulWidget {
   final Function(String) onDayTypeChanged;
   final Function(int) onDeleteExercise;
   final Function(int, int, Map<String, dynamic>) onExerciseUpdated;
-  final Function(int, int, int) onExerciseReordered; // Nueva función para reordenar
+  final Function(int, int, int) onExerciseReordered;
 
   const ExerciseDay({
     Key? key,
@@ -469,7 +466,7 @@ class ExerciseDay extends StatefulWidget {
     required this.onDayTypeChanged,
     required this.onDeleteExercise,
     required this.onExerciseUpdated,
-    required this.onExerciseReordered, // Agregamos este parámetro
+    required this.onExerciseReordered,
   }) : super(key: key);
 
   @override
@@ -497,11 +494,11 @@ class _ExerciseDayState extends State<ExerciseDay> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
+            color: shadowColor,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -512,32 +509,32 @@ class _ExerciseDayState extends State<ExerciseDay> {
         children: [
           Row(
             children: [
-              Text(widget.dayName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+              Text(widget.dayName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: textColor)),
               const SizedBox(width: 12),
               Expanded(
                 child: TextField(
                   controller: _dayTypeController,
                   onChanged: widget.onDayTypeChanged,
+                  style: TextStyle(fontSize: 16, color: textColor),
                   decoration: InputDecoration(
                     hintText: 'Name your workout',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.withOpacity(0.2)),
+                      borderSide: BorderSide(color: dividerColor),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFA90015)),
+                      borderSide: BorderSide(color: redColor),
                     ),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     filled: true,
-                    fillColor: Colors.grey[50],
+                    fillColor: failedColor,
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          // Reemplazamos los ejercicios individuales con un ReorderableListView
           widget.exercises.isNotEmpty 
             ? ReorderableListView.builder(
               shrinkWrap: true,
@@ -553,7 +550,7 @@ class _ExerciseDayState extends State<ExerciseDay> {
                 final exercise = widget.exercises[index];
                 return ExerciseItem(
                   key: ValueKey(exercise['id']),
-                  index: index, // Pass the current index here
+                  index: index,
                   name: exercise['name'] ?? 'Unnamed Exercise',
                   reps: exercise['reps'],
                   duration: exercise['duration'],
@@ -570,10 +567,10 @@ class _ExerciseDayState extends State<ExerciseDay> {
           Center(
             child: TextButton.icon(
               onPressed: widget.onAddExercise,
-              icon: const Icon(Icons.add_circle_outline, color: Color(0xFFA90015)),
-              label: const Text('Add exercise', style: TextStyle(color: Color(0xFFA90015))),
+              icon: Icon(Icons.add_circle_outline, color: redColor),
+              label: Text('Add exercise', style: TextStyle(color: redColor)),
               style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFFA90015).withOpacity(0.1),
+                backgroundColor: redColor.withOpacity(0.1),
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
@@ -619,23 +616,23 @@ class ExerciseItem extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: failedColor,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
             children: [
               ReorderableDragStartListener(
-                index: index, // Use the provided index instead of -1
-                child: Icon(Icons.drag_handle, color: Colors.grey[600]),
+                index: index,
+                child: Icon(Icons.drag_handle, color: hintColor),
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(name, overflow: TextOverflow.ellipsis),
+                child: Text(name, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor)),
               ),
               const SizedBox(width: 8),
-              Text(repsText, style: const TextStyle(fontWeight: FontWeight.w500)),
+              Text(repsText, style: TextStyle(fontWeight: FontWeight.w500, color: textColor)),
               IconButton(
-                icon: const Icon(Icons.delete, color: Color(0xFFA90015)),
+                icon: Icon(Icons.delete, color: redColor),
                 onPressed: onDelete,
                 padding: EdgeInsets.zero,
               ),
@@ -699,16 +696,15 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(widget.exercise['name'],
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87)),
+                  color: textColor)),
             const SizedBox(height: 20),
             
-            // Selector de modo (Reps/Duration)
             Container(
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: failedColor,
                 borderRadius: BorderRadius.circular(25),
               ),
               child: Row(
@@ -719,14 +715,14 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: useReps ? const Color(0xFFA90015) : Colors.transparent,
+                          color: useReps ? redColor : Colors.transparent,
                           borderRadius: BorderRadius.circular(25),
                         ),
                         child: Center(
                           child: Text(
                             'REPS',
                             style: TextStyle(
-                              color: useReps ? Colors.white : Colors.black87,
+                              color: useReps ? contraryTextColor : textColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -740,14 +736,14 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: !useReps ? const Color(0xFFA90015) : Colors.transparent,
+                          color: !useReps ? redColor : Colors.transparent,
                           borderRadius: BorderRadius.circular(25),
                         ),
                         child: Center(
                           child: Text(
                             'DURATION',
                             style: TextStyle(
-                              color: !useReps ? Colors.white : Colors.black87,
+                              color: !useReps ? contraryTextColor : textColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -763,7 +759,6 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
             _buildInputField('Sets', seriesController),
             const SizedBox(height: 16),
             
-            // Muestra reps o duration según la selección
             _buildInputField(
               useReps ? 'Reps' : 'Duration (sec)', 
               useReps ? repsController : durationController
@@ -772,7 +767,7 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
             const SizedBox(height: 24),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFA90015),
+                backgroundColor: redColor,
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20)),
@@ -784,8 +779,8 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
                   'duration': !useReps ? int.tryParse(durationController.text) : null,
                 });
               },
-              child: const Text('Confirm', 
-                  style: TextStyle(fontSize: 16, color: Colors.white)),
+              child: Text('Confirm', 
+                  style: TextStyle(fontSize: 16, color: contraryTextColor)),
             ),
           ],
         ),
@@ -797,17 +792,17 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(fontSize: 16)),
+        Text(label, style: TextStyle(fontSize: 16, color: textColor)),
         SizedBox(
           width: 120,
           child: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 16, color: textColor),
             decoration: InputDecoration(
               filled: true,
-              fillColor: Colors.grey[100],
+              fillColor: backgroundColor,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,

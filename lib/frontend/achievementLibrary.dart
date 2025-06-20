@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:muscle_app/backend/achievement_manager.dart';
-
+import 'package:muscle_app/theme/app_colors.dart';
 
 class AchievementLibraryScreen extends StatelessWidget {
-
   const AchievementLibraryScreen({super.key});
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     final achievements = [
       { //Done
         'id': 'start_journey',
@@ -104,35 +103,29 @@ class AchievementLibraryScreen extends StatelessWidget {
     final unlockedAchievements = AchievementManager().getStats();
     
     void showAchievementDialog(BuildContext context, Map achievement, bool unlocked) {
-      // Definir colores y estilos
-      final Color accentColor = Colors.red;
-      final Color backgroundColor = Colors.white;
-      final Color textColor = Colors.black87;
-      final Color subtextColor = Colors.black54;
-      
       showDialog(
         context: context,
         builder: (_) => Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           elevation: 8,
-          backgroundColor: backgroundColor,
+          backgroundColor: cardColor,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Encabezado con badge
+                // Header with badge
                 Stack(
                   alignment: Alignment.topRight,
                   children: [
-                    // Título del logro
+                    // Achievement title
                     Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: unlocked ? accentColor.withOpacity(0.1) : Colors.grey.shade200,
+                            color: unlocked ? redColor.withOpacity(0.1) : disabledColor,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: unlocked 
@@ -141,8 +134,8 @@ class AchievementLibraryScreen extends StatelessWidget {
                                 style: const TextStyle(fontSize: 28),
                               )
                             : ShaderMask(
-                                shaderCallback: (bounds) => const LinearGradient(
-                                  colors: [Colors.grey, Colors.black38],
+                                shaderCallback: (bounds) => LinearGradient(
+                                  colors: [hintColor, dividerColor],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ).createShader(bounds),
@@ -171,7 +164,7 @@ class AchievementLibraryScreen extends StatelessWidget {
                                 unlocked ? "Unlocked" : "Not unlocked",
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: unlocked ? accentColor : subtextColor,
+                                  color: unlocked ? redColor : hintColor,
                                   fontWeight: unlocked ? FontWeight.w500 : FontWeight.normal,
                                 ),
                               ),
@@ -181,21 +174,21 @@ class AchievementLibraryScreen extends StatelessWidget {
                       ],
                     ),
                     
-                    // Indicador de estado
+                    // Status indicator
                     Container(
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: unlocked ? accentColor : Colors.grey.shade300,
+                        color: unlocked ? redColor : disabledColor,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: backgroundColor,
+                          color: cardColor,
                           width: 2,
                         ),
                       ),
                       child: Icon(
                         unlocked ? Icons.check : Icons.lock,
-                        color: Colors.white,
+                        color: contraryTextColor,
                         size: 16,
                       ),
                     ),
@@ -204,11 +197,11 @@ class AchievementLibraryScreen extends StatelessWidget {
                 
                 const SizedBox(height: 20),
                 
-                // Descripción
+                // Description
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: backgroundColor,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
@@ -223,21 +216,21 @@ class AchievementLibraryScreen extends StatelessWidget {
                 
                 const SizedBox(height: 24),
                 
-                // Espacio adicional si está bloqueado (en lugar de la barra de progreso)
+                // Additional space if locked (instead of progress bar)
                 if (!unlocked) ...[
                   const SizedBox(height: 8),
                 ],
                 
-                // Botones
+                // Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // Botón principal
+                    // Main button
                     ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: accentColor,
-                        foregroundColor: Colors.white,
+                        backgroundColor: redColor,
+                        foregroundColor: contraryTextColor,
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -260,16 +253,19 @@ class AchievementLibraryScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Achievements', style: TextStyle(color: Colors.black)),
+        title: Text(
+          'Achievements', 
+          style: TextStyle(color: textColor)
+        ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: appBarBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: textColor),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: backgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
@@ -288,11 +284,11 @@ class AchievementLibraryScreen extends StatelessWidget {
               onTap: () => showAchievementDialog(context, achievement, isUnlocked),
               child: Container(
                 decoration: BoxDecoration(
-                  color: isUnlocked ? Colors.white : const Color(0xFFE0E0E0),
+                  color: isUnlocked ? cardColor : disabledColor,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: shadowColor,
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -308,8 +304,8 @@ class AchievementLibraryScreen extends StatelessWidget {
                             style: const TextStyle(fontSize: 36),
                           )
                         : ShaderMask(
-                            shaderCallback: (bounds) => const LinearGradient(
-                              colors: [Colors.grey, Colors.black38],
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [hintColor, dividerColor],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ).createShader(bounds),
@@ -325,7 +321,7 @@ class AchievementLibraryScreen extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
-                        color: isUnlocked ? Colors.black : Colors.grey[700],
+                        color: isUnlocked ? textColor : hintColor,
                       ),
                       textAlign: TextAlign.center,
                     ),

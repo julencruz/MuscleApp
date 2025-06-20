@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:muscle_app/backend/marketplace_service.dart';
 import 'package:muscle_app/frontend/viewMarketplaceRoutine.dart';
 import 'package:muscle_app/frontend/searchRoutine.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 enum DifficultyLevel { beginner, intermediate, expert }
 
@@ -82,7 +83,6 @@ class _MarketplacePageState extends State<MarketplacePage> {
   @override
   void initState() {
     super.initState();
-    print("Cargando rutinas del marketplace...");
     _loadRoutines();
   }
 
@@ -127,33 +127,33 @@ class _MarketplacePageState extends State<MarketplacePage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
           child: CircularProgressIndicator(
-            color: Color(0xFFA90015),
+            color: redColor,
           )
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
+        backgroundColor: appBarBackgroundColor,
         elevation: 0,
-        shadowColor: Colors.grey.withOpacity(0.1),
+        shadowColor: shadowColor,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Marketplace',
           style: TextStyle(
-            color: Color(0xFF2A2522),
+            color: textColor,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: Color(0xFF2A2522)),
+            icon: Icon(Icons.search, color: textColor),
             onPressed: () {
               Navigator.push(
                 context,
@@ -168,7 +168,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
         ]
       ),
       body: RefreshIndicator(
-        color: Color(0xFFA90015),
+        color: redColor,
         onRefresh: _loadRoutines,
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -205,7 +205,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
   Widget _buildDifficultySelector() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(12),
       ),
       child: SegmentedButton<DifficultyLevel?>(
@@ -213,39 +213,37 @@ class _MarketplacePageState extends State<MarketplacePage> {
         segments: [
           ButtonSegment<DifficultyLevel?>(
             value: DifficultyLevel.beginner,
-            label: const Text('Beginner'),
-            icon: const Icon(Icons.arrow_circle_up, size: 18),
+            label: Text('Beginner', style: TextStyle(color: textColor)),
+            icon: Icon(Icons.arrow_circle_up, size: 18, color: textColor),
           ),
           ButtonSegment<DifficultyLevel?>(
             value: DifficultyLevel.intermediate,
-            label: const Text('Average'),
-            icon: const Icon(Icons.trending_up, size: 18),
+            label: Text('Average', style: TextStyle(color: textColor)),
+            icon: Icon(Icons.trending_up, size: 18, color: textColor),
           ),
           ButtonSegment<DifficultyLevel?>(
             value: DifficultyLevel.expert,
-            label: const Text('Expert'),
-            icon: const Icon(Icons.star, size: 18),
+            label: Text('Expert', style: TextStyle(color: textColor)),
+            icon: Icon(Icons.star, size: 18, color: textColor),
           ),
         ],
         selected: _selectedDifficulty != null ? {_selectedDifficulty!} : {},
         onSelectionChanged: (Set<DifficultyLevel?> newSelection) {
           setState(() {
-            // Toggle selection - if clicking the already selected item, deselect it
             _selectedDifficulty = newSelection.isEmpty || newSelection.first == _selectedDifficulty 
               ? null 
               : newSelection.first;
             
-            // Update visibility for all categories
             for (var type in RoutineType.values) {
               _categoryVisibility[type] = _hasRoutinesForType(type.displayName);
             }
           });
         },
         style: SegmentedButton.styleFrom(
-          backgroundColor: Colors.white,
-          selectedBackgroundColor: Color(0xFFA90015),
-          foregroundColor: Color(0xFFA90015),
-          selectedForegroundColor: Colors.white,
+          backgroundColor: cardColor,
+          selectedBackgroundColor: redColor,
+          foregroundColor: redColor,
+          selectedForegroundColor: contraryTextColor,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(8)),
           ),
@@ -268,10 +266,10 @@ class _MarketplacePageState extends State<MarketplacePage> {
           padding: const EdgeInsets.only(bottom: 12.0),
           child: Text(
             type.displayName,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2A2522),
+              color: textColor,
               letterSpacing: 0.5,
             ),
           ),
@@ -284,25 +282,20 @@ class _MarketplacePageState extends State<MarketplacePage> {
             icon: _getRoutineIcon(routine['rName'] ?? ''),
             color: _getRoutineColor(routine['rName'] ?? ''),
             onTap: () async {
-              print('Tapped on ${routine}');
               await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => ViewMarketplaceRoutine(routine: routine),
                 ),
               );
-                print('Volvió de la rutina, refrescando...');
-                setState(() {
-                  _isLoading = true;  // Marca que estás recargando los datos
-                });
-
-                // Recarga las rutinas
-                await _loadRoutines();
-
-                setState(() {
-                  _isLoading = false;  // Finaliza el proceso de recarga
-                });
-              }
+              setState(() {
+                _isLoading = true;
+              });
+              await _loadRoutines();
+              setState(() {
+                _isLoading = false;
+              });
+            }
           ),
         ),
       ],
@@ -334,11 +327,11 @@ class _WorkoutCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: shadowColor,
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -369,10 +362,10 @@ class _WorkoutCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: Color(0xFF2A2522),
+                        color: textColor,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -388,12 +381,12 @@ class _WorkoutCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.star, color: Color(0xFFA90015), size: 18),
+                        Icon(Icons.star, color: redColor, size: 18),
                         const SizedBox(width: 4),
                         Text(
                           rating.toString(),
                           style: TextStyle(
-                            color: Colors.grey[700],
+                            color: hintColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -404,13 +397,13 @@ class _WorkoutCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color:Color(0xFFA90015).withOpacity(0.1),
+                            color: redColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Text(
+                          child: Text(
                             'View routine',
                             style: TextStyle(
-                              color: Color(0xFFA90015),
+                              color: redColor,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),

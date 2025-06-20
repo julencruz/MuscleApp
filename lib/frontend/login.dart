@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:muscle_app/frontend/home.dart';
 import 'package:muscle_app/frontend/register.dart';
 import 'package:muscle_app/backend/update_dock.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -21,65 +22,65 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   void showCustomSnackBar(BuildContext context, String message, bool isSuccess) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Row(
-        children: [
-          Icon(
-            isSuccess ? Icons.check_circle : Icons.error_outline,
-            color: Colors.white,
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              isSuccess ? Icons.check_circle : Icons.error_outline,
+              color: contraryTextColor,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(
+                  color: contraryTextColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isSuccess ? Colors.green[700] : redColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        duration: Duration(seconds: isSuccess ? 3 : 4),
+        margin: EdgeInsets.all(12),
+        elevation: 6,
+        action: SnackBarAction(
+          label: 'OK',
+          textColor: contraryTextColor,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
       ),
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: isSuccess ? Color(0xFF2E7D32) : Color(0xFFC62828),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      duration: Duration(seconds: isSuccess ? 3 : 4),
-      margin: EdgeInsets.all(12),
-      elevation: 6,
-      action: SnackBarAction(
-        label: 'OK',
-        textColor: Colors.white,
-        onPressed: () {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        },
-      ),
-    ),
-  );
-}
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    UpdateDock.updateSystemUI(Colors.grey[50]!);
+    UpdateDock.updateSystemUI(backgroundColor);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       body: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          // Usando un gradiente muy sutil en lugar de una imagen de patrón
+          color: backgroundColor,
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Color(0xFFFAFAFA)],
-            stops: [0.5, 1.0],
+            colors: [cardColor, backgroundColor],
+            stops: const [0.5, 1.0],
           ),
         ),
         child: SafeArea(
           child: Stack(
             children: [
-              // Elementos decorativos minimalistas
+              // Decorative elements
               Positioned(
                 top: 40,
                 right: -60,
@@ -88,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 180,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color(0xFFA90015).withOpacity(0.05),
+                    color: redColor.withOpacity(0.05),
                   ),
                 ),
               ),
@@ -100,105 +101,105 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 220,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color(0xFFA90015).withOpacity(0.05),
+                    color: redColor.withOpacity(0.05),
                   ),
                 ),
               ),
               
-              // Contenido principal
+              // Main content
               SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height: 55),
+                      const SizedBox(height: 55),
                       
-                      // Logo elegante
+                      // Logo
                       Container(
-                        padding: EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white,
+                          color: cardColor,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: shadowColor,
                               blurRadius: 15,
                               spreadRadius: 5,
-                              offset: Offset(0, 5),
+                              offset: const Offset(0, 5),
                             ),
                           ],
                         ),
-                        child: Image(
-                          image: AssetImage('assets/images/logoMuscleApp2.png'),
+                        child: Image.asset(
+                          'assets/images/logoMuscleApp2.png',
                           width: 100,
                           height: 100,
                         ),
                       ),
                       
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       
-                      // Título elegante
+                      // Title
                       Text(
                         "MUSCLE APP",
                         style: TextStyle(
-                          color: Color(0xFFA90015),
+                          color: redColor,
                           fontSize: 28,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 2.0,
                         ),
                       ),
                       
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       
                       Text(
                         "Perfection through discipline",
                         style: TextStyle(
-                          color: Colors.black54,
+                          color: hintColor,
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
                           letterSpacing: 0.5,
                         ),
                       ),
                       
-                      SizedBox(height: 60),
+                      const SizedBox(height: 60),
                       
-                      // Formulario
+                      // Form
                       Form(
                         key: _formKey,
                         child: Column(
                           children: [
-                            // Campo Email
+                            // Email field
                             TextFormField(
                               controller: emailController,
-                              keyboardType: TextInputType.emailAddress, // Teclado optimizado para emails
-                              autocorrect: false, // Evita autocorrección que puede molestar en emails
-                              textInputAction: TextInputAction.next, // Para facilitar navegación entre campos
+                              keyboardType: TextInputType.emailAddress,
+                              autocorrect: false,
+                              textInputAction: TextInputAction.next,
                               style: TextStyle(
-                                color: Colors.black87,
+                                color: textColor,
                                 fontWeight: FontWeight.w500,
                               ),
                               decoration: InputDecoration(
                                 labelText: 'Email',
                                 labelStyle: TextStyle(
-                                  color: Colors.black54,
+                                  color: hintColor,
                                   fontWeight: FontWeight.w400,
                                 ),
                                 prefixIcon: Icon(
                                   Icons.email_outlined,
-                                  color: Color(0xFFA90015),
+                                  color: redColor,
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: Colors.black12,
+                                    color: dividerColor,
                                     width: 1.5,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: Color(0xFFA90015),
+                                    color: redColor,
                                     width: 2,
                                   ),
                                 ),
@@ -216,15 +217,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                     width: 2,
                                   ),
                                 ),
-                                fillColor: Colors.white,
+                                fillColor: cardColor,
                                 filled: true,
-                                contentPadding: EdgeInsets.symmetric(vertical: 18),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 18),
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your email';
                                 }
-                                // Expresión regular para validar formato de email básico
                                 if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                                   return 'Please enter a valid email address';
                                 }
@@ -232,30 +232,30 @@ class _LoginScreenState extends State<LoginScreen> {
                               },
                             ),
                             
-                            SizedBox(height: 25),
+                            const SizedBox(height: 25),
                             
-                            // Campo Password
+                            // Password field
                             TextFormField(
                               controller: passwordController,
                               obscureText: _obscurePassword,
                               style: TextStyle(
-                                color: Colors.black87,
+                                color: textColor,
                                 fontWeight: FontWeight.w500,
                               ),
                               decoration: InputDecoration(
                                 labelText: 'Password',
                                 labelStyle: TextStyle(
-                                  color: Colors.black54,
+                                  color: hintColor,
                                   fontWeight: FontWeight.w400,
                                 ),
                                 prefixIcon: Icon(
                                   Icons.lock_outline,
-                                  color: Color(0xFFA90015),
+                                  color: redColor,
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                                    color: Colors.black45,
+                                    color: hintColor,
                                   ),
                                   onPressed: () {
                                     setState(() {
@@ -266,14 +266,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: Colors.black12,
+                                    color: dividerColor,
                                     width: 1.5,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: Color(0xFFA90015),
+                                    color: redColor,
                                     width: 2,
                                   ),
                                 ),
@@ -291,9 +291,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     width: 2,
                                   ),
                                 ),
-                                fillColor: Colors.white,
+                                fillColor: cardColor,
                                 filled: true,
-                                contentPadding: EdgeInsets.symmetric(vertical: 18),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 18),
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -303,7 +303,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               },
                             ),
                             
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             
                             // Forgot password
                             Align(
@@ -324,27 +324,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                       false
                                     );
                                   }
-                                
                                 },
                                 child: Text(
                                   'Forgot Password?',
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 169, 0, 21),
+                                    color: redColor,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 style: TextButton.styleFrom(
                                   padding: EdgeInsets.zero,
-                                  minimumSize: Size(0, 30),
+                                  minimumSize: const Size(0, 30),
                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ),
                             ),
                             
-                            SizedBox(height: 35),
+                            const SizedBox(height: 35),
                             
-                            // Botón de Login
+                            // Sign in button
                             SizedBox(
                               width: double.infinity,
                               height: 58,
@@ -370,11 +369,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ),
                                         );
                                       } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text('Login failed. Please check your credentials.'),
-                                            backgroundColor: Colors.red[700],
-                                          ),
+                                        showCustomSnackBar(
+                                          context,
+                                          'Login failed. Please check your credentials.',
+                                          false
                                         );
                                       }
                                     } finally {
@@ -387,10 +385,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFA90015),
-                                  foregroundColor: Colors.white,
+                                  backgroundColor: redColor,
+                                  foregroundColor: contraryTextColor,
                                   elevation: 3,
-                                  shadowColor: Color(0xFFA90015).withOpacity(0.4),
+                                  shadowColor: redColor.withOpacity(0.4),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15),
                                   ),
@@ -400,7 +398,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       width: 24,
                                       height: 24,
                                       child: CircularProgressIndicator(
-                                        color: Colors.white,
+                                        color: contraryTextColor,
                                         strokeWidth: 2.0,
                                       ),
                                     )
@@ -408,6 +406,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       'SIGN IN',
                                       style: TextStyle(
                                         fontSize: 16,
+                                        color: textColor,
                                         fontWeight: FontWeight.bold,
                                         letterSpacing: 1.5,
                                       ),
@@ -415,7 +414,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             
-                            SizedBox(height: 30),
+                            const SizedBox(height: 30),
                             
                             // Divider
                             Row(
@@ -423,7 +422,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Expanded(
                                   child: Container(
                                     height: 1,
-                                    color: Colors.black12,
+                                    color: dividerColor,
                                   ),
                                 ),
                                 Padding(
@@ -431,7 +430,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: Text(
                                     'OR',
                                     style: TextStyle(
-                                      color: Colors.black45,
+                                      color: hintColor,
                                       fontWeight: FontWeight.w500,
                                       fontSize: 12,
                                     ),
@@ -440,15 +439,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Expanded(
                                   child: Container(
                                     height: 1,
-                                    color: Colors.black12,
+                                    color: dividerColor,
                                   ),
                                 ),
                               ],
                             ),
                             
-                            SizedBox(height: 30),
+                            const SizedBox(height: 30),
                             
-                            // Botón de Google
+                            // Google button
                             SizedBox(
                               width: double.infinity,
                               height: 58,
@@ -469,11 +468,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
                                       );
                                     } else {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Google login failed. Please try again.'),
-                                          backgroundColor: Colors.red[700],
-                                        ),
+                                      showCustomSnackBar(
+                                        context,
+                                        'Google login failed. Please try again.',
+                                        false
                                       );
                                     }
                                   } finally {
@@ -492,15 +490,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                 label: Text(
                                   'CONTINUE WITH GOOGLE',
                                   style: TextStyle(
-                                    color: Colors.black87,
+                                    color: textColor,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                     letterSpacing: 0.5,
                                   ),
                                 ),
                                 style: OutlinedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  side: BorderSide(color: Colors.black12, width: 1.5),
+                                  backgroundColor: cardColor,
+                                  side: BorderSide(color: dividerColor, width: 1.5),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15),
                                   ),
@@ -509,16 +507,16 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             
-                            SizedBox(height: 35),
+                            const SizedBox(height: 35),
                             
-                            // Signup link
+                            // Sign up link
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
                                   "Don't have an account? ",
                                   style: TextStyle(
-                                    color: Colors.black54,
+                                    color: hintColor,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -532,7 +530,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: Text(
                                     'SIGN UP',
                                     style: TextStyle(
-                                      color: Color(0xFFA90015),
+                                      color: redColor,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
                                     ),
@@ -541,7 +539,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
                             
-                            SizedBox(height: 50),
+                            const SizedBox(height: 50),
                           ],
                         ),
                       ),

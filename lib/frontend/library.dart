@@ -9,6 +9,7 @@ import 'package:muscle_app/frontend/home.dart';
 import 'package:muscle_app/frontend/viewRoutine.dart';
 import 'package:muscle_app/frontend/edit.dart';
 import 'package:muscle_app/backend/save_active_routine.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,13 +26,11 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
   late Future<void> _routinesFuture;
 
   @override
-  bool get wantKeepAlive => true; // Prevents state loss during navigation
+  bool get wantKeepAlive => true;
 
   void setActiveRoutine(int index) {
     clearSharedPreferences();
     SaveActiveRoutine.updateActiveRoutine(index, routines);
-    
-    // Schedule notifications for the new active routine
     RoutineNotificationManager.scheduleRoutineNotifications(routines[index]);
     
     setState(() {
@@ -54,14 +53,14 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
       });
       loadActiveRoutineIndex();
     } catch (e) {
-      print('Error al cargar rutinas: $e');
+      print('Error loading routines: $e');
       if (!mounted) return;
       setState(() {
         routines = [];
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al cargar rutinas')),
+          SnackBar(content: Text('Error loading routines', style: TextStyle(color: contraryTextColor))),
         );
       }
     }
@@ -109,14 +108,14 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
       loadActiveRoutineIndex();
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Deleted routine')),
+      SnackBar(content: Text('Deleted routine', style: TextStyle(color: contraryTextColor))),
     );
   }
 
   Future<void> clearSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear(); 
-    print('Todo ha sido borrado de SharedPreferences');
+    print('Cleared SharedPreferences');
   }
 
   Widget _buildNoRoutinesView() {
@@ -126,22 +125,23 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error, size: 64, color: Color(0xFFA90015)),
+            Icon(Icons.error, size: 64, color: redColor),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               "No routines yet!",
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
+                color: textColor,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               "It looks like you haven't created or added any routines. Let's fix that!",
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.black54,
+                color: hintColor,
               ),
               textAlign: TextAlign.center,
             ),
@@ -154,8 +154,8 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
                 );
               },
               style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFA90015),
-                foregroundColor: Colors.white,
+                backgroundColor: redColor,
+                foregroundColor: contraryTextColor,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -178,8 +178,8 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
                 );
               },
               style: FilledButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
+                backgroundColor: textColor2,
+                foregroundColor: cardColor,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -202,8 +202,8 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
                 );
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFFA90015),
-                side: const BorderSide(color: Color(0xFFA90015), width: 1.5),
+                foregroundColor: redColor,
+                side: BorderSide(color: redColor, width: 1.5),
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -257,17 +257,17 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Required for AutomaticKeepAliveClientMixin
+    super.build(context);
     
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
+        backgroundColor: appBarBackgroundColor,
         elevation: 0,
-        shadowColor: Colors.grey.withOpacity(0.1),
-        title: const Text('My Routines', style: TextStyle(color: Colors.black)),
+        shadowColor: shadowColor,
+        title: Text('My Routines', style: TextStyle(color: textColor)),
         centerTitle: true,
       ),
       body: Padding(
@@ -276,12 +276,11 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
           future: _routinesFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(color: Color(0xFFA90015)),
+              return Center(
+                child: CircularProgressIndicator(color: redColor),
               );
             } 
             
-            // Once data is loaded
             return routines.isEmpty 
                 ? _buildNoRoutinesView()
                 : _buildRoutinesList();
@@ -292,7 +291,6 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
   }
 }
 
-// ignore: must_be_immutable
 class _RoutineCard extends StatefulWidget {
   final String title;
   final int daysCount;
@@ -302,9 +300,9 @@ class _RoutineCard extends StatefulWidget {
   final VoidCallback onActiveChanged;
   final VoidCallback handleEdit;
   final VoidCallback handleDelete;
-  List<Map<String, dynamic>> routines;
+  final List<Map<String, dynamic>> routines;
 
-  _RoutineCard({
+  const _RoutineCard({
     required this.title,
     required this.daysCount,
     required this.routine,
@@ -312,7 +310,8 @@ class _RoutineCard extends StatefulWidget {
     required this.isActive,
     required this.handleEdit,
     required this.handleDelete,
-    required this.onActiveChanged, required this.routines,
+    required this.onActiveChanged, 
+    required this.routines,
   });
 
   @override
@@ -363,7 +362,7 @@ class __RoutineCardState extends State<_RoutineCard> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: shadowColor,
               spreadRadius: 1,
               blurRadius: 6,
               offset: const Offset(0, 3),
@@ -371,7 +370,7 @@ class __RoutineCardState extends State<_RoutineCard> {
           ],
         ),
         child: Card(
-          color: Colors.white,
+          color: cardColor,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -401,9 +400,10 @@ class __RoutineCardState extends State<_RoutineCard> {
                     children: [
                       Text(
                         widget.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
+                          color: textColor,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -427,7 +427,7 @@ class __RoutineCardState extends State<_RoutineCard> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: widget.isActive ? Color(0xFFA90015) : Colors.grey[400]!,
+                        color: widget.isActive ? redColor : dividerColor,
                         width: 2,
                       ),
                     ),
@@ -437,7 +437,7 @@ class __RoutineCardState extends State<_RoutineCard> {
                               width: 12,
                               height: 12,
                               decoration: BoxDecoration(
-                                color: Color(0xFFA90015),
+                                color: redColor,
                                 shape: BoxShape.circle,
                               ),
                             )
@@ -449,7 +449,7 @@ class __RoutineCardState extends State<_RoutineCard> {
                 IconButton(
                   icon: Icon(
                     Icons.more_vert,
-                    color: Colors.grey[600],
+                    color: hintColor,
                     size: 22,
                   ),
                   onPressed: () => _showOptionsMenu(context),
@@ -463,11 +463,9 @@ class __RoutineCardState extends State<_RoutineCard> {
   }
 
   void _showOptionsMenu(BuildContext context) {
-    final accentColor = Color(0xFFA90015);
-
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -482,7 +480,7 @@ class __RoutineCardState extends State<_RoutineCard> {
               height: 5,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: dividerColor,
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
@@ -491,7 +489,7 @@ class __RoutineCardState extends State<_RoutineCard> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: accentColor,
+                color: redColor,
                 letterSpacing: 0.5,
               ),
             ),
@@ -526,10 +524,9 @@ class __RoutineCardState extends State<_RoutineCard> {
     String? subtitle,
     VoidCallback? onTap,
   }) {
-    final accentColor = Color(0xFFA90015);
-    final textColor = isRed ? accentColor : Colors.grey[800];
-    final iconColor = isRed ? accentColor : Colors.grey[600];
-    final subtitleColor = Colors.grey[500];
+    final textColor = isRed ? redColor : textColor2;
+    final iconColor = isRed ? redColor : hintColor;
+    final subtitleColor = hintColor;
 
     return InkWell(
       borderRadius: BorderRadius.circular(12),
@@ -581,31 +578,30 @@ class __RoutineCardState extends State<_RoutineCard> {
       if (response) {
         AchievementManager().unlockAchievement("share_routine");
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Routine published successfully')),
+          SnackBar(content: Text('Routine published successfully', style: TextStyle(color: contraryTextColor))),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to publish routine')),
+          SnackBar(content: Text('Failed to publish routine', style: TextStyle(color: contraryTextColor))),
         );
       }
     } catch (e) {
-      // Aquí capturamos las excepciones específicas
       if (e.toString().contains('El creador de la rutina no coincide')) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("You can't publish a routine to the marketplace if you are not the creator!"),
+          SnackBar(
+            content: Text("You can't publish a routine to the marketplace if you are not the creator!", style: TextStyle(color: contraryTextColor)),
           ),
         );
       } else if (e.toString().contains('La rutina no tiene nombre')) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("You can't publish a routine without a name!"),
+          SnackBar(
+            content: Text("You can't publish a routine without a name!", style: TextStyle(color: contraryTextColor)),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to publish routine'),
+          SnackBar(
+            content: Text('Failed to publish routine', style: TextStyle(color: contraryTextColor)),
           ),
         );
       }

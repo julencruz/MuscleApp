@@ -4,6 +4,7 @@ import 'package:muscle_app/frontend/home.dart';
 import 'package:muscle_app/frontend/modofocusdescanso.dart';
 import 'package:muscle_app/backend/save_stats.dart';
 import 'package:muscle_app/frontend/welcomeAnimation.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 
 class ModoFocusPage extends StatefulWidget {
@@ -26,19 +27,14 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
   int currentSeries = 1;
   bool _showWelcome = false;
   late AnimationController _animationController;
-  // Controladores y valores para peso y repeticiones por serie
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _repsController = TextEditingController();
-  // Lista para almacenar el histórico de las series completadas
   final List<Map<String, dynamic>> _completedSeries = [];
   
-  // Lista para almacenar todos los datos de la rutina completa
   static List<List<String>> allCurrentWeights = [];
   static List<List<String>> allCurrentReps = [];
   static List<dynamic> allExercises = [];
   static List<List<bool>> allSeriesDone = [];
-  
-  // Mantener un registro global de todos los ejercicios completados en la sesión
   static List<Map<String, dynamic>> allCompletedExercises = [];
   static num totalExercises = 0;
   
@@ -54,7 +50,6 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
       duration: const Duration(milliseconds: 300),
     );
     
-    // Initialize controllers with default values
     final exercise = widget.routine['days'][widget.dayIndex]['exercises'][widget.exerciseIndex];
     _weightController.text = exercise['lastWeight'].toString();
     for (final exercise in widget.routine['days'][widget.dayIndex]['exercises']) {
@@ -62,12 +57,10 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
     }
     _repsController.text = exercise['reps'].toString();
     
-    // If it's the first exercise of the day, initialize global lists
     if (widget.exerciseIndex == 0) {
       final day = widget.routine['days'][widget.dayIndex];
       final totalExercises = day['exercises'].length;
       
-      // Reset static lists for a new session
       allCurrentWeights = List.generate(totalExercises, (_) => []);
       allCurrentReps = List.generate(totalExercises, (_) => []);
       allExercises = List.from(day['exercises']);
@@ -88,7 +81,6 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
     final day = widget.routine['days'][widget.dayIndex];
     final exercise = day['exercises'][widget.exerciseIndex];
     
-    // Validar los valores ingresados
     final weight = _weightController.text.trim();
     final reps = _repsController.text.trim();
     
@@ -100,7 +92,6 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
     }
     
     try {
-      // Intentar convertir para validar que sean números
       int.parse(weight);
       int.parse(reps);
     } catch (e) {
@@ -110,7 +101,6 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
       return;
     }
     
-    // Guardar la serie actual en el historial local
     _completedSeries.add({
       'series': currentSeries,
       'weight': weight,
@@ -118,8 +108,6 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
       'exerciseName': exercise['exerciseName'],
     });
     
-    // Guardar la serie actual en el registro global
-    // Añadir los datos a las listas globales
     if (allCurrentWeights[widget.exerciseIndex].length < currentSeries) {
       allCurrentWeights[widget.exerciseIndex].add(weight);
       allCurrentReps[widget.exerciseIndex].add(reps);
@@ -130,7 +118,6 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
       allSeriesDone[widget.exerciseIndex][currentSeries - 1] = true;
     }
     
-    // Añadir al registro global de ejercicios completados
     allCompletedExercises.add({
       'exerciseName': exercise['exerciseName'],
       'series': currentSeries,
@@ -138,26 +125,21 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
       'reps': reps,
     });
     
-    print(exercise);
-    // Mostrar la página de descanso como un bottom sheet
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: cardColor,
       isScrollControlled: true,
       enableDrag: false,
-      isDismissible: false, // Para que el usuario no pueda cerrar el modal deslizando
+      isDismissible: false,
       builder: (context) => ModoFocusDescansoPage(
         exerciseTitle: exercise['exerciseName'],
         initialTime: widget.routine['restTime'],
         onDescansoCompleto: () {
-          // Cuando el descanso termina, cerramos el modal y avanzamos a la siguiente serie
           Navigator.pop(context);
           setState(() {
-            // Si no es la última serie, avanzamos a la siguiente
             if (currentSeries < exercise['series']) {
               currentSeries++;
             } else {
-              // Si es la última serie, navegamos al siguiente ejercicio
               _navegarSiguienteEjercicio();
             }
           });
@@ -166,29 +148,17 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
     );
   }
   
-  // Función para guardar todas las estadísticas
   Future<void> _saveAllStats() async {
     try {
-      // Asegurarse de que las listas tienen la misma longitud
-      print("⚙️ Preparando datos para guardar estadísticas");
-      print("📊 Pesos: $allCurrentWeights");
-      print("🔢 Repeticiones: $allCurrentReps");
-      print("📋 Ejercicios: ${allExercises.length}");
-      print("✅ Series completadas: $allSeriesDone");
-      
-      // Ajustar las listas si es necesario
       for (int i = 0; i < allExercises.length; i++) {
-        // Si no hay datos para este ejercicio, añadir datos vacíos
         if (i >= allCurrentWeights.length) {
           allCurrentWeights.add([]);
           allCurrentReps.add([]);
           allSeriesDone.add([]);
         }
         
-        // Obtener el número esperado de series para este ejercicio
         final expectedSeries = allExercises[i]['series'];
         
-        // Asegurar que tenemos el número correcto de series
         while (allSeriesDone[i].length < expectedSeries) {
           allCurrentWeights[i].add("0");
           allCurrentReps[i].add("0");
@@ -204,20 +174,16 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
         allSeriesDone,
         focus
       );
-      
-      print("✅ Estadísticas guardadas correctamente");
     } catch (e) {
       print('❌ Error al guardar estadísticas: $e');
-      rethrow; // Reenviar el error para manejarlo en el widget
+      rethrow;
     }
   }
 
   void _navegarSiguienteEjercicio() {
     final day = widget.routine['days'][widget.dayIndex];
     
-    // Verificamos si hay más ejercicios en el día actual
     if (widget.exerciseIndex < day['exercises'].length - 1) {
-      // Ir al siguiente ejercicio
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -229,19 +195,18 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
         ),
       );
     } else {
-      // No hay más ejercicios, mostrar diálogo de rutina completada
       showDialog(
         context: context,
-        barrierDismissible: false, // No permitir cerrar el diálogo tocando fuera
+        barrierDismissible: false,
         builder: (context) => FutureBuilder(
-          future: _saveAllStats(), // Guardar estadísticas antes de mostrar el diálogo
+          future: _saveAllStats(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const AlertDialog(
-                title: Text('Saving stats...'),
+              return AlertDialog(
+                title: const Text('Saving stats...'),
                 content: Center(
                   heightFactor: 1,
-                  child: CircularProgressIndicator(color: Color(0xFFA90015)),
+                  child: CircularProgressIndicator(color: redColor),
                 ),
               );
             } else {
@@ -251,7 +216,7 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                 actions: [
                   TextButton(
                     onPressed: () {
-                      Navigator.pop(context); // Cierra el diálogo
+                      Navigator.pop(context);
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -260,7 +225,7 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                       );
                     },
                     style: TextButton.styleFrom(
-                      foregroundColor: const Color(0xFFA90015),
+                      foregroundColor: redColor,
                     ),
                     child: const Text('Complete'),
                   ),
@@ -277,27 +242,24 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
     final day = widget.routine['days'][widget.dayIndex];
     final exercise = day['exercises'][widget.exerciseIndex];
     
-    // Llamar a importExercisesDetails para obtener todos los detalles
     List<Map<String, dynamic>> exercises = await ExerciseLoader.importExercisesDetails();
 
-    // Buscar el ejercicio que corresponde al exercise['exerciseID'] (usamos 'eID' que es el ID del ejercicio)
     var selectedExercise = exercises.firstWhere(
       (ex) => ex['id'] == exercise['exerciseID'],
-      orElse: () => {}, // Si no se encuentra, devuelve un Map vacío
+      orElse: () => {},
     );
 
-    // Verificar que el ejercicio existe y tiene instrucciones
     if (selectedExercise.isEmpty || !selectedExercise.containsKey('instructions')) {
-      return; // Si no tiene instrucciones, salimos
+      return;
     }
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      isScrollControlled: true, // Permite controlar el tamaño del modal
+      isScrollControlled: true,
       builder: (context) => SizedBox(
         height: MediaQuery.of(context).size.height * 0.8,
         child: SingleChildScrollView(
@@ -308,10 +270,10 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
               Center(
                 child: Text(
                   selectedExercise['name'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFFA90015),
+                    color: redColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -339,15 +301,15 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFA90015),
+                    backgroundColor: redColor,
                     minimumSize: const Size(200, 45),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Ok',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                    style: TextStyle(fontSize: 16, color: contraryTextColor),
                   ),
                 ),
               ),
@@ -358,18 +320,14 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
     );
   }
 
-
-  // Método para mostrar el historial de series completadas
   void _showSeriesHistoryDialog() {
-    // Verificamos si hay ejercicios completados globalmente
     if (allCompletedExercises.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No sets completed yet')),
+        const SnackBar(content: Text('No sets completed yet'))
       );
       return;
     }
     
-    // Agrupar ejercicios por nombre
     final Map<String, List<Map<String, dynamic>>> exerciseGroups = {};
     
     for (final exercise in allCompletedExercises) {
@@ -382,7 +340,7 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
     
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: cardColor,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -393,15 +351,22 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Session history',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFA90015)),
+              style: TextStyle(
+                fontSize: 22, 
+                fontWeight: FontWeight.bold, 
+                color: redColor
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Completed sets in this session:',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 14, 
+                color: textColor2
+              ),
             ),
             const Divider(height: 24),
             Expanded(
@@ -418,10 +383,10 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Text(
                           exerciseName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18, 
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFFA90015),
+                            color: redColor,
                           ),
                         ),
                       ),
@@ -431,8 +396,8 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                         elevation: 1,
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: const Color(0xFFFFF3F3),
-                            foregroundColor: const Color(0xFFA90015),
+                            backgroundColor: redColor.withOpacity(0.1),
+                            foregroundColor: redColor,
                             child: Text('${serie['series']}'),
                           ),
                           title: Text('${serie['weight']} kg', 
@@ -450,11 +415,14 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFA90015),
+                backgroundColor: redColor,
                 minimumSize: const Size(double.infinity, 45),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Close', style: TextStyle(color: Colors.white)),
+              child: Text(
+                'Close', 
+                style: TextStyle(color: contraryTextColor)
+              ),
             ),
           ],
         ),
@@ -478,24 +446,24 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
     final totalSeries = exercise['series'];
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
-        shadowColor: Colors.grey.withOpacity(0.1),
+        backgroundColor: appBarBackgroundColor,
+        shadowColor: shadowColor,
         automaticallyImplyLeading: false,
         title: Row(
           children: [
             Container(
               child: IconButton(
-                icon: const Icon(Icons.close, color: Color(0xFFA90015)),
+                icon: Icon(Icons.close, color: redColor),
                 onPressed: () {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return Dialog(
-                        backgroundColor: Colors.white,
+                        backgroundColor: cardColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -512,32 +480,33 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                                     width: 60,
                                     height: 60,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFFFECEE),
+                                      color: redColor.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(30),
                                     ),
                                   ),
-                                  const Icon(
+                                  Icon(
                                     Icons.warning_rounded,
-                                    color: Color(0xFFA90015),
+                                    color: redColor,
                                     size: 32,
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 20),
-                              const Text(
+                              Text(
                                 'Exit workout?',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
+                                  color: textColor,
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              const Text(
+                              Text(
                                 'You will lose your progress! 😰',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Color(0xFF666666),
+                                  color: textColor2,
                                 ),
                               ),
                               const SizedBox(height: 24),
@@ -548,17 +517,17 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                                     child: OutlinedButton(
                                       onPressed: () => Navigator.pop(context),
                                       style: OutlinedButton.styleFrom(
-                                        side: const BorderSide(color: Color(0xFFDDDDDD)),
+                                        side: BorderSide(color: dividerColor),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(12),
                                         ),
                                         padding: const EdgeInsets.symmetric(vertical: 12),
                                       ),
-                                      child: const Text(
+                                      child: Text(
                                         'Cancel',
                                         style: TextStyle(
                                           fontSize: 16,
-                                          color: Color(0xFF444444),
+                                          color: textColor,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
@@ -568,7 +537,7 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                                   Expanded(
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        Navigator.pop(context); // Close dialog
+                                        Navigator.pop(context);
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
@@ -577,15 +546,15 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                                         );
                                       },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFFA90015),
-                                        foregroundColor: Colors.white,
+                                        backgroundColor: redColor,
+                                        foregroundColor: contraryTextColor,
                                         elevation: 0,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(12),
                                         ),
                                         padding: const EdgeInsets.symmetric(vertical: 12),
                                       ),
-                                      child: const Text(
+                                      child: Text(
                                         'Exit',
                                         style: TextStyle(
                                           fontSize: 16,
@@ -608,9 +577,9 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
             const SizedBox(width: 16),
             Text(
               day['dayName'] ?? 'Workout',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
-                color: Colors.black87,
+                color: textColor,
               ),
             ),
           ],
@@ -619,7 +588,7 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
           Container(
             margin: const EdgeInsets.only(right: 12),
             child: IconButton(
-              icon: const Icon(Icons.info_outline, color: Color(0xFFA90015)),
+              icon: Icon(Icons.info_outline, color: redColor),
               onPressed: _showExerciseInfoDialog,
             ),
           ),
@@ -634,9 +603,9 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
               Center(
                 child: Text(
                   exercise['exerciseName'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
-                    color: Colors.black87,
+                    color: textColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -649,7 +618,6 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
               _buildExerciseCard(exercise, totalSeries),
               const SizedBox(height: 40),
 
-              // Progreso total de la rutina al final
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -661,7 +629,7 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                           'Progress: ${allCompletedExercises.length}/$totalExercises total sets',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
+                            color: textColor2,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -671,14 +639,14 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                         children: [
                           Text(
                             '${(_calculateTotalRoutineProgress(allCompletedExercises, totalExercises) * 100).toInt()}%',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFFA90015),
+                              color: redColor,
                             ),
                           ),
                           const SizedBox(width: 8),
                           IconButton(
-                            icon: const Icon(Icons.history, color: Color(0xFFA90015)),
+                            icon: Icon(Icons.history, color: redColor),
                             onPressed: _showSeriesHistoryDialog,
                             tooltip: 'Sets history',
                             iconSize: 30,
@@ -694,8 +662,8 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                     borderRadius: BorderRadius.circular(10),
                     child: LinearProgressIndicator(
                       value: _calculateTotalRoutineProgress(allCompletedExercises, totalExercises),
-                      backgroundColor: Colors.grey[300],
-                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFA90015)),
+                      backgroundColor: failedColor,
+                      valueColor: AlwaysStoppedAnimation<Color>(redColor),
                       minHeight: 10,
                     ),
                   ),
@@ -710,14 +678,14 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
   }
 
   double _calculateTotalRoutineProgress(List<Map<String, dynamic>> allCompletedExercises, num totalExercises) {
-  int completedExercises = allCompletedExercises.length; // Número de ejercicios completados
-  if (totalExercises == 0) return 0.0; // Evitar división por cero
-  return completedExercises / totalExercises; // Progreso total
-}
+    int completedExercises = allCompletedExercises.length;
+    if (totalExercises == 0) return 0.0;
+    return completedExercises / totalExercises;
+  }
 
   Widget _buildExerciseCard(Map<String, dynamic> exercise, int totalSeries) {
     return Card(
-      color: Colors.white,
+      color: cardColor,
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
@@ -732,13 +700,14 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.fitness_center, color: Color(0xFFA90015)),
+                          Icon(Icons.fitness_center, color: redColor),
                           const SizedBox(width: 8),
-                          const Text(
+                          Text(
                             'Weight:',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
+                              color: textColor,
                             ),
                           ),
                         ],
@@ -764,13 +733,14 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.repeat, color: Color(0xFFA90015)),
+                          Icon(Icons.repeat, color: redColor),
                           const SizedBox(width: 8),
-                          const Text(
+                          Text(
                             'Reps:',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
+                              color: textColor,
                             ),
                           ),
                         ],
@@ -794,20 +764,20 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
             const SizedBox(height: 24),
             Text(
               'Set: $currentSeries/$totalSeries', 
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20, 
                 fontWeight: FontWeight.bold,
-                color: Color(0xFFA90015),
+                color: redColor,
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
-              onPressed: _mostrarDescanso, // Ahora solo tenemos un botón para continuar
-              icon: const Icon(Icons.navigate_next),
-              label: const Text('Continue'),
+              onPressed: _mostrarDescanso,
+              icon: const Icon(Icons.navigate_next, color: Colors.white,),
+              label: const Text('Continue', style: TextStyle(color: Colors.white),),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFA90015),
-                foregroundColor: Colors.white,
+                backgroundColor: redColor,
+                foregroundColor: contraryTextColor,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 minimumSize: const Size(double.infinity, 56),
                 shape: RoundedRectangleBorder(
@@ -822,42 +792,42 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
   }
 
   Widget _buildInstructionStep(int number, String text) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 16),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 28,
-          height: 28,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: const Color(0xFFA90015).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            '$number',
-            style: const TextStyle(
-              color: Color(0xFFA90015),
-              fontWeight: FontWeight.w700,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: redColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '$number',
+              style: TextStyle(
+                color: redColor,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 16,
-              height: 1.4,
-              color: Colors.grey[800],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 16,
+                height: 1.4,
+                color: textColor,
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 }
 
 class ExerciseImageCarousel extends StatefulWidget {
@@ -872,7 +842,6 @@ class ExerciseImageCarousel extends StatefulWidget {
 class _ExerciseImageCarouselState extends State<ExerciseImageCarousel> {
   late final PageController _pageController;
   int _currentPage = 0;
-
   late final List<String> _imagePaths;
 
   @override
@@ -914,9 +883,9 @@ class _ExerciseImageCarouselState extends State<ExerciseImageCarousel> {
                 'assets/images/exercises_images/${_imagePaths[index]}',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  color: Colors.white,
+                  color: cardColor,
                   alignment: Alignment.center,
-                  child: const Text('Error de imagen'),
+                  child: Text('Error de imagen', style: TextStyle(color: textColor)),
                 ),
               ),
             ),
@@ -933,8 +902,8 @@ class _ExerciseImageCarouselState extends State<ExerciseImageCarousel> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: _currentPage == index
-                            ? const Color(0xFFA90015) // Punto rojo activo
-                            : Colors.white.withOpacity(0.5),
+                            ? redColor
+                            : contraryTextColor.withOpacity(0.5),
                       ),
                     ),
                   ),

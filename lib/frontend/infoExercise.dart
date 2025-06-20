@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 class InfoExerciseScreen extends StatefulWidget {
   final String name;
@@ -21,7 +22,7 @@ class InfoExerciseScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<InfoExerciseScreen> createState() => _InfoExerciseScreenState() ;
+  State<InfoExerciseScreen> createState() => _InfoExerciseScreenState();
 }
 
 class _InfoExerciseScreenState extends State<InfoExerciseScreen> {
@@ -32,11 +33,6 @@ class _InfoExerciseScreenState extends State<InfoExerciseScreen> {
   void initState() {
     super.initState();
     _pageController = PageController();
-    _pageController.addListener(() {
-      setState(() {
-        _currentPage = _pageController.page?.round() ?? 0;
-      });
-    });
   }
 
   @override
@@ -45,30 +41,17 @@ class _InfoExerciseScreenState extends State<InfoExerciseScreen> {
     super.dispose();
   }
 
+  void _onPageChanged(int index) {
+    setState(() {
+      _currentPage = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        shadowColor: Colors.grey.withOpacity(0.1),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, size: 32),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          widget.name,
-          style: TextStyle(
-            fontSize: 20,
-            color: theme.colorScheme.onBackground,
-            letterSpacing: -0.5,
-          ),
-        ),
-      ),
+      backgroundColor: backgroundColor,
+      appBar: _buildAppBar(),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -97,6 +80,29 @@ class _InfoExerciseScreenState extends State<InfoExerciseScreen> {
     );
   }
 
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      surfaceTintColor: Colors.transparent,
+      backgroundColor: appBarBackgroundColor,
+      elevation: 0,
+      shadowColor: shadowColor,
+      centerTitle: true,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, size: 32, color: textColor),
+        onPressed: () => Navigator.pop(context),
+      ),
+      title: Text(
+        widget.name,
+        style: TextStyle(
+          fontSize: 20,
+          color: textColor,
+          letterSpacing: -0.5,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
   Widget _buildPRBadge() {
     final pr = widget.pr;
     final hasPR = pr > 0;
@@ -104,21 +110,25 @@ class _InfoExerciseScreenState extends State<InfoExerciseScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFA90015).withOpacity(0.1),
+        color: redColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFA90015).withOpacity(0.3)),
+        border: Border.all(color: redColor.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          hasPR? const Icon(Icons.emoji_events_rounded, color: Color(0xFFA90015), size: 28) : const Icon(Icons.not_interested, color: Color(0xFFA90015), size: 28),
+          Icon(
+            hasPR ? Icons.emoji_events_rounded : Icons.not_interested,
+            color: redColor,
+            size: 28,
+          ),
           const SizedBox(width: 12),
           Text(
-            hasPR ? '${pr.toStringAsFixed(1)} kg' : 'Has not been set',
-            style: const TextStyle(
+            hasPR ? '${pr.toStringAsFixed(1)} kg' : 'No PR set',
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: Color(0xFFA90015),
+              color: redColor,
               letterSpacing: -0.3,
             ),
           ),
@@ -127,79 +137,115 @@ class _InfoExerciseScreenState extends State<InfoExerciseScreen> {
     );
   }
 
-
   Widget _buildImageCarousel() {
+    if (widget.images.isEmpty) {
+      return _buildNoImagePlaceholder();
+    }
+
     return AspectRatio(
       aspectRatio: 1.1,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
-        child: widget.images.isEmpty 
-          ? Container(
-              color: Colors.white,
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.image_not_supported_rounded, 
-                    color: Colors.white, 
-                    size: 48),
-                  const SizedBox(height: 8),
-                  Text('Imagen no disponible',
-                    style: TextStyle(color: Colors.white)),
-                ],
-              ),
-            )
-          : Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                PageView.builder(
-                  controller: _pageController,
-                  itemCount: widget.images.length,
-                  itemBuilder: (context, index) => Image.asset(
-                    'assets/images/exercises_images/${widget.images[index]}',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.white,
-                      alignment: Alignment.center,
-                      child: const Text('Error de imagen'),
-                    ),
-                  ),
-                ),
-                if (widget.images.length > 1)
-                  Positioned(
-                    bottom: 16,
-                    child: Row(
-                      children: List.generate(
-                        widget.images.length,
-                        (index) => Container(
-                          width: 8,
-                          height: 8,
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _currentPage == index
-                                ? const Color(0xFFA90015)
-                                : Colors.white.withOpacity(0.5),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            PageView.builder(
+              controller: _pageController,
+              itemCount: widget.images.length,
+              onPageChanged: _onPageChanged,
+              itemBuilder: (context, index) => _buildImageItem(index),
             ),
+            if (widget.images.length > 1) _buildPageIndicator(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoImagePlaceholder() {
+    return AspectRatio(
+      aspectRatio: 1.1,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          color: cardColor,
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.image_not_supported_rounded,
+                color: hintColor,
+                size: 48,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'No image available',
+                style: TextStyle(color: hintColor),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageItem(int index) {
+    final imagePath = 'assets/images/exercises_images/${widget.images[index]}';
+    
+    return Image.asset(
+      imagePath,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        color: cardColor,
+        alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.broken_image, color: hintColor, size: 48),
+            const SizedBox(height: 8),
+            Text(
+              'Image error',
+              style: TextStyle(color: textColor),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPageIndicator() {
+    return Positioned(
+      bottom: 16,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(
+          widget.images.length,
+          (index) => Container(
+            width: 8,
+            height: 8,
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _currentPage == index
+                  ? redColor
+                  : Colors.white.withOpacity(0.5),
+            ),
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildDetailSection() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
+            color: shadowColor,
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -208,68 +254,104 @@ class _InfoExerciseScreenState extends State<InfoExerciseScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle('Exercise details'),
+          _buildSectionTitle('Exercise Details'),
+          const SizedBox(height: 16),
           _buildInfoItem(
             Icons.fitness_center_rounded,
-            'Primary muscles',
-            widget.primaryMuscles.isNotEmpty ? widget.primaryMuscles[0] : 'None',
+            'Primary Muscles',
+            _formatMuscleList(widget.primaryMuscles),
           ),
           _buildInfoItem(
             Icons.account_tree_rounded,
-            'Secondary muscles',
-            widget.secondaryMuscles.isNotEmpty ? widget.secondaryMuscles.join(', ') : 'None',
+            'Secondary Muscles',
+            _formatMuscleList(widget.secondaryMuscles),
           ),
           _buildInfoItem(Icons.bar_chart_rounded, 'Level', widget.level),
-          const SizedBox(height: 28),
+          const SizedBox(height: 32),
           _buildSectionTitle('Instructions'),
           const SizedBox(height: 16),
-          ...widget.instructions.asMap().entries.map(
-                (entry) => _buildInstructionStep(entry.key + 1, entry.value),
-              ),
+          if (widget.instructions.isNotEmpty)
+            ...widget.instructions.asMap().entries.map(
+                  (entry) => _buildInstructionStep(entry.key + 1, entry.value.toString()),
+                )
+          else
+            _buildNoInstructionsPlaceholder(),
+        ],
+      ),
+    );
+  }
+
+  String _formatMuscleList(List<dynamic> muscles) {
+    if (muscles.isEmpty) return 'None';
+    return muscles.map((muscle) => muscle.toString()).join(', ');
+  }
+
+  Widget _buildNoInstructionsPlaceholder() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: hintColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline, color: hintColor),
+          const SizedBox(width: 12),
+          Text(
+            'No instructions available',
+            style: TextStyle(color: hintColor),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildSectionTitle(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Text(text,
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w800,
-          color: Colors.black87,
-          letterSpacing: -0.5,
-        ),
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w800,
+        color: textColor,
+        letterSpacing: -0.5,
       ),
     );
   }
 
   Widget _buildInfoItem(IconData icon, String title, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 22, color: const Color(0xFFA90015)),
-          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: redColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 20, color: redColor),
+          ),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
+                Text(
+                  title,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black54,
+                    color: textColor2,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(value,
-                  style: const TextStyle(
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: textColor,
                   ),
                 ),
               ],
@@ -287,27 +369,31 @@ class _InfoExerciseScreenState extends State<InfoExerciseScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 32,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color(0xFFA90015).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+              color: redColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: redColor.withOpacity(0.3)),
             ),
-            child: Text('$number',
-              style: const TextStyle(
-                color: Color(0xFFA90015),
+            child: Text(
+              '$number',
+              style: TextStyle(
+                color: redColor,
                 fontWeight: FontWeight.w700,
+                fontSize: 14,
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Expanded(
-            child: Text(text,
+            child: Text(
+              text,
               style: TextStyle(
                 fontSize: 16,
-                height: 1.4,
-                color: Colors.grey[800],
+                height: 1.5,
+                color: textColor,
               ),
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:muscle_app/backend/achievement_manager.dart';
 import 'package:muscle_app/backend/exercise_loader.dart';
 import 'package:muscle_app/frontend/infoWarmup.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 class WarmUpButton extends StatefulWidget {
   final List<dynamic> dayRoutine;
@@ -179,17 +180,17 @@ class _WarmUpButtonState extends State<WarmUpButton> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              backgroundColor: Colors.white,
+              backgroundColor: cardColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
               title: Row(
-                children: const [
-                  Icon(Icons.local_fire_department, color: Color(0xFFA90015)),
-                  SizedBox(width: 10),
+                children: [
+                  Icon(Icons.local_fire_department, color: redColor),
+                  const SizedBox(width: 10),
                   Text(
                     "Warming Up",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: textColor2),
                   ),
                 ],
               ),
@@ -197,27 +198,27 @@ class _WarmUpButtonState extends State<WarmUpButton> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Get your muscles ready for your workout!"),
+                  Text("Get your muscles ready for your workout!", style: TextStyle(color: textColor2)),
                   const SizedBox(height: 16),
                   ...personalizedWarmups.map((warmup) => Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text("• ", style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text("• ", style: TextStyle(fontWeight: FontWeight.bold, color: redColor)),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     warmup['name']!,
-                                    style: const TextStyle(fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontWeight: FontWeight.w500, color: textColor2),
                                   ),
                                   Text(
                                     warmup['description']!,
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: Colors.grey.shade600,
+                                      color: hintColor,
                                     ),
                                   ),
                                 ],
@@ -233,10 +234,10 @@ class _WarmUpButtonState extends State<WarmUpButton> {
                                   ),
                                 );
                               },
-                              child: const Icon(
+                              child: Icon(
                                 Icons.info_outline,
                                 size: 20,
-                                color: Color(0xFFA90015),
+                                color: redColor,
                               ),
                             ),
                           ],
@@ -246,10 +247,10 @@ class _WarmUpButtonState extends State<WarmUpButton> {
               ),
               actions: [
                 TextButton(
-                  child: const Text(
+                  child: Text(
                     "Ready",
                     style: TextStyle(
-                      color: Color(0xFFA90015),
+                      color: redColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -266,25 +267,25 @@ class _WarmUpButtonState extends State<WarmUpButton> {
       highlightColor: const Color(0xFFFFECEC),
       child: Container(
         decoration: BoxDecoration(
-          color: _isHovered ? const Color(0xFFFFE5E5) : Colors.white,
+          color: _isHovered ? const Color(0xFFFFE5E5) : cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFA90015), width: 1),
+          border: Border.all(color: redColor, width: 1),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.local_fire_department,
                 size: 16,
-                color: Color(0xFFA90015),
+                color: redColor,
               ),
               const SizedBox(width: 5), // Added some spacing
-              const Text(
+              Text(
                 "Warm Up",
                 style: TextStyle(
-                  color: Color(0xFFA90015),
+                  color: redColor,
                   fontWeight: FontWeight.w500,
                   fontSize: 13,
                 ),

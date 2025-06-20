@@ -3,8 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:muscle_app/backend/notifs_service.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:muscle_app/backend/achievement_manager.dart';
+
 
 class ModoFocusDescansoPage extends StatefulWidget {
   final String exerciseTitle;
@@ -66,9 +68,9 @@ class _ModoFocusDescansoPageState extends State<ModoFocusDescansoPage>
   }
 
   bool _isAppInForeground() {
-  final state = WidgetsBinding.instance.lifecycleState;
-  return state == AppLifecycleState.resumed;
-}
+    final state = WidgetsBinding.instance.lifecycleState;
+    return state == AppLifecycleState.resumed;
+  }
 
   Future<void> _showRestCompletedNotification() async {
     final scheduledDate = tz.TZDateTime.now(tz.local).add(Duration(seconds: _remainingTime-3));
@@ -136,26 +138,26 @@ class _ModoFocusDescansoPageState extends State<ModoFocusDescansoPage>
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: dividerColor,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(height: 30),
               Text(
                 widget.exerciseTitle,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20, 
                   fontWeight: FontWeight.bold, 
-                  color: Colors.black,
+                  color: textColor,
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 "Rest!",
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFA90015),
+                  color: redColor,
                 ),
               ),
               const SizedBox(height: 40),
@@ -168,9 +170,9 @@ class _ModoFocusDescansoPageState extends State<ModoFocusDescansoPage>
                     child: CircularProgressIndicator(
                       value: 1 - _controller.value,
                       strokeWidth: 12,
-                      backgroundColor: Colors.grey[300],
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xFFA90015),
+                      backgroundColor: failedColor,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        redColor,
                       ),
                     ),
                   ),
@@ -178,18 +180,18 @@ class _ModoFocusDescansoPageState extends State<ModoFocusDescansoPage>
                     children: [
                       Text(
                         _formatTime(_remainingTime),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 46,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: textColor,
                         ),
                       ),
                       const SizedBox(height: 10),
-                      const Text(
+                      Text(
                         "seconds remaining",
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey,
+                          color: hintColor,
                         ),
                       ),
                     ],
@@ -204,11 +206,12 @@ class _ModoFocusDescansoPageState extends State<ModoFocusDescansoPage>
                     onPressed: () {
                       AchievementManager().unlockAchievement("skip_rest_time");
                       _controller.stop();
+                      NotifsService.cancelScheduledNotification(0);
                       widget.onDescansoCompleto();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFA90015),
-                      foregroundColor: Colors.white,
+                      backgroundColor: redColor,
+                      foregroundColor: contraryTextColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -232,8 +235,8 @@ class _ModoFocusDescansoPageState extends State<ModoFocusDescansoPage>
                       setState(() {});
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 216, 216, 216),
-                      foregroundColor: const Color(0xFFA90015),
+                      backgroundColor: failedColor,
+                      foregroundColor: redColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

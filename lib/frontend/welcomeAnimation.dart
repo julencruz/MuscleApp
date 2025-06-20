@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 class WelcomeAnimation extends StatefulWidget {
   final VoidCallback onAnimationComplete;
@@ -198,7 +199,7 @@ class _WelcomeAnimationState extends State<WelcomeAnimation>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: AnimatedBuilder(
           animation: Listenable.merge([
@@ -214,13 +215,13 @@ class _WelcomeAnimationState extends State<WelcomeAnimation>
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: backgroundColor,
                       gradient: RadialGradient(
                         center: Alignment.center,
                         radius: 1.2,
                         colors: [
-                          Colors.white,
-                          Colors.grey[50]!,
+                          backgroundColor,
+                          backgroundColor.withOpacity(0.8),
                         ],
                       ),
                     ),
@@ -264,11 +265,11 @@ class _WelcomeAnimationState extends State<WelcomeAnimation>
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                           decoration: BoxDecoration(
-                            color: Colors.grey[100],
+                            color: shadowColor,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
+                                color: shadowColor,
                                 blurRadius: 10,
                                 spreadRadius: 0,
                               ),
@@ -278,7 +279,7 @@ class _WelcomeAnimationState extends State<WelcomeAnimation>
                             widget.humorMessage,
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey[700],
+                              color: textColor2,
                               fontStyle: FontStyle.italic,
                             ),
                           ),
@@ -312,11 +313,11 @@ class _WelcomeAnimationState extends State<WelcomeAnimation>
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
-                color: widget.primaryColor,
+                color: redColor,
                 letterSpacing: 1.5,
                 shadows: [
                   Shadow(
-                    color: widget.primaryColor.withOpacity(0.2),
+                    color: redColor.withOpacity(0.2),
                     blurRadius: 5,
                     offset: const Offset(0, 3),
                   ),
@@ -346,7 +347,7 @@ class _WelcomeAnimationState extends State<WelcomeAnimation>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             decoration: BoxDecoration(
-              color: widget.primaryColor.withOpacity(0.1),
+              color: redColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -354,7 +355,7 @@ class _WelcomeAnimationState extends State<WelcomeAnimation>
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: widget.primaryColor,
+                color: redColor,
                 letterSpacing: 0.5,
               ),
             ),

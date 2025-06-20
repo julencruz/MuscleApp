@@ -4,6 +4,7 @@ import 'package:muscle_app/backend/achievement_manager.dart';
 import 'package:muscle_app/backend/routine_saver.dart';
 import 'package:muscle_app/frontend/cuestionarioRutina.dart';
 import 'package:muscle_app/frontend/home.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 import 'addExercise.dart';
 
 // Pantalla principal
@@ -159,10 +160,10 @@ class _CreateScreenState extends State<CreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.auto_awesome),
+          icon: Icon(Icons.auto_awesome, color: textColor),
           onPressed: () {
             Navigator.push(
               context,
@@ -171,18 +172,18 @@ class _CreateScreenState extends State<CreateScreen> {
           },
         ),
         surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
+        backgroundColor: appBarBackgroundColor,
         elevation: 0,
-        shadowColor: Colors.grey.withOpacity(0.1),
+        shadowColor: shadowColor,
         centerTitle: true,
-        title: const Text('Create Routine'),
+        title: Text('Create Routine', style: TextStyle(color: textColor),),
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 8),
             child: IconButton(
               icon: Container(
                 padding: const EdgeInsets.all(8),
-                child: const Icon(Icons.save_rounded),
+                child: Icon(Icons.save_rounded, color: textColor),
               ),
               onPressed: _saveRoutine,
             ),
@@ -197,11 +198,11 @@ class _CreateScreenState extends State<CreateScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.08),
+                      color: shadowColor,
                       blurRadius: 10,
                       spreadRadius: 2,
                       offset: const Offset(0, 4),
@@ -213,35 +214,35 @@ class _CreateScreenState extends State<CreateScreen> {
                     TextField(
                       controller: _nameController,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 24, color: Colors.black),
+                      style: TextStyle(fontSize: 24, color: textColor),
                       decoration: InputDecoration(
                         hintText: 'Routine Name',
                         hintStyle: TextStyle(
-                          color: Colors.grey[400],
+                          color: hintColor,
                           fontWeight: FontWeight.bold,
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: Colors.grey.withOpacity(0.2),
+                            color: dividerColor,
                             width: 1,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Colors.black,
+                          borderSide: BorderSide(
+                            color: textColor,
                             width: 2,
                           ),
                         ),
                         contentPadding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
                         suffixIcon: Icon(
                           Icons.edit,
-                          color: Colors.grey[400],
+                          color: hintColor,
                           size: 20,
                         ),
                         filled: true,
-                        fillColor: Colors.grey[50],
+                        fillColor: backgroundColor,
                       ),
                     ),
                     
@@ -255,14 +256,14 @@ class _CreateScreenState extends State<CreateScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey[800],
+                            color: textColor2,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Container(
                           width: 100,
                           decoration: BoxDecoration(
-                            color: Colors.grey[100],
+                            color: failedColor,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -272,10 +273,10 @@ class _CreateScreenState extends State<CreateScreen> {
                                   controller: _restTimeController,
                                   keyboardType: TextInputType.number,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black,
+                                    color: textColor,
                                   ),
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
@@ -283,7 +284,7 @@ class _CreateScreenState extends State<CreateScreen> {
                                   decoration: InputDecoration(
                                     hintText: '90',
                                     hintStyle: TextStyle(
-                                      color: Colors.grey[400],
+                                      color: hintColor,
                                       fontWeight: FontWeight.w500,
                                     ),
                                     border: InputBorder.none,
@@ -299,7 +300,7 @@ class _CreateScreenState extends State<CreateScreen> {
                                 child: Text(
                                   'sec',
                                   style: TextStyle(
-                                    color: Colors.grey[600],
+                                    color: hintColor,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
                                   ),
@@ -319,11 +320,11 @@ class _CreateScreenState extends State<CreateScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.08),
+                      color: shadowColor,
                       blurRadius: 10,
                       spreadRadius: 2,
                       offset: const Offset(0, 4),
@@ -338,7 +339,7 @@ class _CreateScreenState extends State<CreateScreen> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: Colors.grey[800],
+                        color: textColor,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -355,18 +356,18 @@ class _CreateScreenState extends State<CreateScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: _selectedDays[index]
-                                  ? const Color(0xFFA90015)
-                                  : Colors.white,
+                                  ? redColor
+                                  : cardColor,
                               border: Border.all(
                                 color: _selectedDays[index]
                                     ? Colors.transparent
-                                    : Colors.grey.withOpacity(0.2),
+                                    : dividerColor,
                                 width: 1.5,
                               ),
                               boxShadow: [
                                 if (_selectedDays[index])
                                   BoxShadow(
-                                    color: const Color(0xFFA90015).withOpacity(0.2),
+                                    color: redColor.withOpacity(0.2),
                                     blurRadius: 8,
                                     spreadRadius: 1,
                                   ),
@@ -378,7 +379,7 @@ class _CreateScreenState extends State<CreateScreen> {
                                 style: TextStyle(
                                   color: _selectedDays[index]
                                       ? Colors.white
-                                      : Colors.grey[800],
+                                      : textColor,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                 ),
@@ -419,7 +420,6 @@ class _CreateScreenState extends State<CreateScreen> {
   }
 }
 
-
 // Widget de título y tiempo de descanso
 class RoutineTitleAndRestTime extends StatelessWidget {
   final TextEditingController nameController;
@@ -439,9 +439,10 @@ class RoutineTitleAndRestTime extends StatelessWidget {
         TextField(
           controller: nameController,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
+            color: textColor,
           ),
           decoration: const InputDecoration(
             hintText: 'Routine Name',
@@ -456,11 +457,12 @@ class RoutineTitleAndRestTime extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'Rest Time: ',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
+                color: textColor,
               ),
             ),
             SizedBox(
@@ -472,11 +474,12 @@ class RoutineTitleAndRestTime extends StatelessWidget {
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                 ],
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: '90',
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
                   suffixText: 'sec',
+                  hintStyle: TextStyle(color: hintColor),
                 ),
               ),
             ),
@@ -505,13 +508,14 @@ class WeekdaysSelector extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 8.0, bottom: 8.0),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
           child: Text(
             'Weekdays',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              color: textColor,
             ),
           ),
         ),
@@ -525,9 +529,9 @@ class WeekdaysSelector extends StatelessWidget {
                 height: 36,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: selectedDays[index] ? Color(0xFFA90015) : Colors.transparent,
+                  color: selectedDays[index] ? redColor : Colors.transparent,
                   border: Border.all(
-                    color: Colors.black,
+                    color: textColor,
                     width: 2,
                   ),
                 ),
@@ -535,7 +539,7 @@ class WeekdaysSelector extends StatelessWidget {
                   child: Text(
                     weekdaysShort[index],
                     style: TextStyle(
-                      color: selectedDays[index] ? Colors.white : Colors.black,
+                      color: selectedDays[index] ? contraryTextColor : textColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -558,7 +562,7 @@ class ExerciseDay extends StatefulWidget {
   final VoidCallback onAddExercise;
   final Function(String) onDayTypeChanged;
   final Function(int) onDeleteExercise;
-  final Function(int, int, int) onExerciseReordered; // Add this
+  final Function(int, int, int) onExerciseReordered;
 
   const ExerciseDay({
     Key? key,
@@ -569,7 +573,7 @@ class ExerciseDay extends StatefulWidget {
     required this.onAddExercise,
     required this.onDayTypeChanged,
     required this.onDeleteExercise,
-    required this.onExerciseReordered, // Add this
+    required this.onExerciseReordered,
   }) : super(key: key);
 
   @override
@@ -597,11 +601,11 @@ class _ExerciseDayState extends State<ExerciseDay> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
+            color: shadowColor,
             blurRadius: 10,
             spreadRadius: 2,
             offset: const Offset(0, 4),
@@ -618,7 +622,7 @@ class _ExerciseDayState extends State<ExerciseDay> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: Colors.grey[800],
+                  color: textColor,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -629,20 +633,20 @@ class _ExerciseDayState extends State<ExerciseDay> {
                   decoration: InputDecoration(
                     hintText: 'Name your workout',
                     hintStyle: TextStyle(
-                      color: Colors.grey[400],
+                      color: hintColor,
                       fontWeight: FontWeight.w500,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: Colors.grey.withOpacity(0.2),
+                        color: dividerColor,
                         width: 1,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Color(0xFFA90015),
+                      borderSide: BorderSide(
+                        color: redColor,
                         width: 2,
                       ),
                     ),
@@ -651,11 +655,12 @@ class _ExerciseDayState extends State<ExerciseDay> {
                       vertical: 12,
                     ),
                     filled: true,
-                    fillColor: Colors.grey[50],
+                    fillColor: backgroundColor,
                   ),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
+                    color: textColor,
                   ),
                   onChanged: widget.onDayTypeChanged,
                 ),
@@ -678,7 +683,7 @@ class _ExerciseDayState extends State<ExerciseDay> {
               final exercise = widget.exercises[index];
               return ExerciseItem(
                 key: ValueKey(exercise['id']),
-                index: index, // Pass the index
+                index: index,
                 name: exercise['name'],
                 reps: exercise['measurementType'] == 'duration' 
                       ? '${exercise['duration']}s x ${exercise['series']}' 
@@ -691,14 +696,14 @@ class _ExerciseDayState extends State<ExerciseDay> {
           Center(
             child: TextButton.icon(
               onPressed: widget.onAddExercise,
-              icon: const Icon(
+              icon: Icon(
                 Icons.add_circle_outline_rounded,
-                color: Color(0xFFA90015),
+                color: redColor,
               ),
-              label: const Text(
+              label: Text(
                 'Add exercise',
                 style: TextStyle(
-                  color: Color(0xFFA90015),
+                  color: redColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -710,7 +715,7 @@ class _ExerciseDayState extends State<ExerciseDay> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                backgroundColor: Color(0xFFA90015).withOpacity(0.1),
+                backgroundColor: redColor.withOpacity(0.1),
               ),
             ),
           ),
@@ -722,14 +727,14 @@ class _ExerciseDayState extends State<ExerciseDay> {
 
 // Widget para un elemento de ejercicio individual
 class ExerciseItem extends StatelessWidget {
-  final int index; // Add index parameter
+  final int index;
   final String name;
   final String reps;
   final VoidCallback onDelete;
 
   const ExerciseItem({
     Key? key,
-    required this.index, // Add this
+    required this.index,
     required this.name,
     required this.reps,
     required this.onDelete,
@@ -738,16 +743,16 @@ class ExerciseItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ReorderableDragStartListener(
-      index: index, // Use the index here
+      index: index,
       child: Container(
-        key: ValueKey('${name}_$index'), // Unique key for reordering
+        key: ValueKey('${name}_$index'),
         margin: const EdgeInsets.only(bottom: 8.0),
         padding: const EdgeInsets.symmetric(
           vertical: 12.0,
           horizontal: 16.0,
         ),
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: failedColor,
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Row(
@@ -760,21 +765,23 @@ class ExerciseItem extends StatelessWidget {
                 name,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w500,
+                  color: textColor,
                 ),
               ),
             ),
             const SizedBox(width: 8),
             Text(
               reps,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w500,
+                color: textColor,
               ),
             ),
             const SizedBox(width: 8),
             IconButton(
-              icon: const Icon(Icons.delete, color: Color(0xFFA90015)),
+              icon: Icon(Icons.delete, color: redColor),
               onPressed: onDelete,
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),

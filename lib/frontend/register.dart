@@ -4,6 +4,7 @@ import 'package:muscle_app/frontend/login.dart';
 import 'package:muscle_app/backend/register_login.dart';
 import 'package:muscle_app/backend/new_user_init.dart';
 import 'package:muscle_app/frontend/home.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -76,15 +77,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (user != null) {
           await NewUserInit.newUserInit(user, _nameController.text);
           
-          // Mostrar mensaje de éxito
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Account created successfully!'),
+            SnackBar(
+              content: Text('Account created successfully!', style: TextStyle(color: contraryTextColor)),
               backgroundColor: Colors.green,
             ),
           );
           
-          // Navegar a login
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -93,19 +92,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           );
         } else {
-          // Manejar error
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Registration failed. Please try again.'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: Text('Registration failed. Please try again.', style: TextStyle(color: contraryTextColor)),
+              backgroundColor: redColor,
             ),
           );
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            content: Text('Error: ${e.toString()}', style: TextStyle(color: contraryTextColor)),
+            backgroundColor: redColor,
           ),
         );
       } finally {
@@ -130,21 +128,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       body: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: backgroundColor,
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.white, Color(0xFFFAFAFA)],
-            stops: [0.5, 1.0],
+            colors: [cardColor, backgroundColor],
+            stops: const [0.5, 1.0],
           ),
         ),
         child: SafeArea(
           child: Stack(
             children: [
-              // Elementos decorativos minimalistas
+              // Decorative elements
               Positioned(
                 top: 40,
                 right: -60,
@@ -153,7 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 180,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color(0xFFA90015).withOpacity(0.05),
+                    color: redColor.withOpacity(0.05),
                   ),
                 ),
               ),
@@ -165,51 +163,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 220,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color(0xFFA90015).withOpacity(0.05),
+                    color: redColor.withOpacity(0.05),
                   ),
                 ),
               ),
               
-              // Contenido principal
+              // Main content
               SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
                       
-                      // Logo pequeño
+                      // Logo
                       Center(
                         child: Container(
-                          padding: EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.white,
+                            color: cardColor,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
+                                color: shadowColor,
                                 blurRadius: 10,
                                 spreadRadius: 3,
-                                offset: Offset(0, 3),
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
-                          child: Image(
-                            image: AssetImage('assets/images/logoMuscleApp.png'),
+                          child: Image.asset(
+                            'assets/images/logoMuscleApp.png',
                             width: 70,
                             height: 70,
                           ),
                         ),
                       ),
                       
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       
-                      // Título
+                      // Title
                       Text(
                         "CREATE ACCOUNT",
                         style: TextStyle(
-                          color: Color(0xFFA90015),
+                          color: redColor,
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1.5,
@@ -217,53 +215,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         textAlign: TextAlign.center,
                       ),
                       
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       
                       Text(
                         "Start your fitness journey today",
                         style: TextStyle(
-                          color: Colors.black54,
+                          color: hintColor,
                           fontSize: 15,
                           fontWeight: FontWeight.w400,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
                       
-                      // Formulario
+                      // Form
                       Form(
                         key: _formKey,
                         child: Column(
                           children: [
-                            // Campo Nombre
+                            // Name field
                             TextFormField(
                               controller: _nameController,
                               style: TextStyle(
-                                color: Colors.black87,
+                                color: textColor,
                                 fontWeight: FontWeight.w500,
                               ),
                               decoration: InputDecoration(
                                 labelText: 'Full Name',
                                 labelStyle: TextStyle(
-                                  color: Colors.black54,
+                                  color: hintColor,
                                   fontWeight: FontWeight.w400,
                                 ),
                                 prefixIcon: Icon(
                                   Icons.person_outline,
-                                  color: Color(0xFFA90015),
+                                  color: redColor,
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: Colors.black12,
+                                    color: dividerColor,
                                     width: 1.5,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: Color(0xFFA90015),
+                                    color: redColor,
                                     width: 2,
                                   ),
                                 ),
@@ -281,44 +279,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     width: 2,
                                   ),
                                 ),
-                                fillColor: Colors.white,
+                                fillColor: cardColor,
                                 filled: true,
-                                contentPadding: EdgeInsets.symmetric(vertical: 18),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 18),
                               ),
                               validator: _validateName,
                             ),
                             
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             
-                            // Campo Email
+                            // Email field
                             TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
                               style: TextStyle(
-                                color: Colors.black87,
+                                color: textColor,
                                 fontWeight: FontWeight.w500,
                               ),
                               decoration: InputDecoration(
                                 labelText: 'Email',
                                 labelStyle: TextStyle(
-                                  color: Colors.black54,
+                                  color: hintColor,
                                   fontWeight: FontWeight.w400,
                                 ),
                                 prefixIcon: Icon(
                                   Icons.email_outlined,
-                                  color: Color(0xFFA90015),
+                                  color: redColor,
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: Colors.black12,
+                                    color: dividerColor,
                                     width: 1.5,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: Color(0xFFA90015),
+                                    color: redColor,
                                     width: 2,
                                   ),
                                 ),
@@ -336,37 +334,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     width: 2,
                                   ),
                                 ),
-                                fillColor: Colors.white,
+                                fillColor: cardColor,
                                 filled: true,
-                                contentPadding: EdgeInsets.symmetric(vertical: 18),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 18),
                               ),
                               validator: _validateEmail,
                             ),
                             
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             
-                            // Campo Password
+                            // Password field
                             TextFormField(
                               controller: _passwordController,
                               obscureText: _obscurePassword,
                               style: TextStyle(
-                                color: Colors.black87,
+                                color: textColor,
                                 fontWeight: FontWeight.w500,
                               ),
                               decoration: InputDecoration(
                                 labelText: 'Password',
                                 labelStyle: TextStyle(
-                                  color: Colors.black54,
+                                  color: hintColor,
                                   fontWeight: FontWeight.w400,
                                 ),
                                 prefixIcon: Icon(
                                   Icons.lock_outline,
-                                  color: Color(0xFFA90015),
+                                  color: redColor,
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                                    color: Colors.black45,
+                                    color: hintColor,
                                   ),
                                   onPressed: () {
                                     setState(() {
@@ -377,14 +375,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: Colors.black12,
+                                    color: dividerColor,
                                     width: 1.5,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: Color(0xFFA90015),
+                                    color: redColor,
                                     width: 2,
                                   ),
                                 ),
@@ -402,37 +400,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     width: 2,
                                   ),
                                 ),
-                                fillColor: Colors.white,
+                                fillColor: cardColor,
                                 filled: true,
-                                contentPadding: EdgeInsets.symmetric(vertical: 18),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 18),
                               ),
                               validator: _validatePassword,
                             ),
                             
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             
-                            // Campo Confirm Password
+                            // Confirm Password field
                             TextFormField(
                               controller: _confirmPasswordController,
                               obscureText: _obscureConfirmPassword,
                               style: TextStyle(
-                                color: Colors.black87,
+                                color: textColor,
                                 fontWeight: FontWeight.w500,
                               ),
                               decoration: InputDecoration(
                                 labelText: 'Confirm Password',
                                 labelStyle: TextStyle(
-                                  color: Colors.black54,
+                                  color: hintColor,
                                   fontWeight: FontWeight.w400,
                                 ),
                                 prefixIcon: Icon(
                                   Icons.lock_outline,
-                                  color: Color(0xFFA90015),
+                                  color: redColor,
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
-                                    color: Colors.black45,
+                                    color: hintColor,
                                   ),
                                   onPressed: () {
                                     setState(() {
@@ -443,14 +441,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: Colors.black12,
+                                    color: dividerColor,
                                     width: 1.5,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: Color(0xFFA90015),
+                                    color: redColor,
                                     width: 2,
                                   ),
                                 ),
@@ -468,26 +466,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     width: 2,
                                   ),
                                 ),
-                                fillColor: Colors.white,
+                                fillColor: cardColor,
                                 filled: true,
-                                contentPadding: EdgeInsets.symmetric(vertical: 18),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 18),
                               ),
                               validator: _validateConfirmPassword,
                             ),
                             
-                            SizedBox(height: 35),
+                            const SizedBox(height: 35),
                             
-                            // Botón de Registro
+                            // Register button
                             SizedBox(
                               width: double.infinity,
                               height: 58,
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _submitForm,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFA90015),
-                                  foregroundColor: Colors.white,
+                                  backgroundColor: redColor,
+                                  foregroundColor: contraryTextColor,
                                   elevation: 3,
-                                  shadowColor: Color(0xFFA90015).withOpacity(0.4),
+                                  shadowColor: redColor.withOpacity(0.4),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15),
                                   ),
@@ -497,13 +495,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       width: 24,
                                       height: 24,
                                       child: CircularProgressIndicator(
-                                        color: Colors.white,
+                                        color: contraryTextColor,
                                         strokeWidth: 2.0,
                                       ),
                                     )
                                   : Text(
                                       'CREATE ACCOUNT',
                                       style: TextStyle(
+                                        color: textColor,
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                         letterSpacing: 1.5,
@@ -512,7 +511,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                             
-                            SizedBox(height: 30),
+                            const SizedBox(height: 30),
                             
                             // Divider
                             Row(
@@ -520,7 +519,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 Expanded(
                                   child: Container(
                                     height: 1,
-                                    color: Colors.black12,
+                                    color: dividerColor,
                                   ),
                                 ),
                                 Padding(
@@ -528,7 +527,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   child: Text(
                                     'OR',
                                     style: TextStyle(
-                                      color: Colors.black45,
+                                      color: hintColor,
                                       fontWeight: FontWeight.w500,
                                       fontSize: 12,
                                     ),
@@ -537,15 +536,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 Expanded(
                                   child: Container(
                                     height: 1,
-                                    color: Colors.black12,
+                                    color: dividerColor,
                                   ),
                                 ),
                               ],
                             ),
                             
-                            SizedBox(height: 30),
+                            const SizedBox(height: 30),
                             
-                            // Botón de Google
+                            // Google button
                             SizedBox(
                               width: double.infinity,
                               height: 58,
@@ -568,8 +567,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     } else {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
-                                          content: Text('Google sign up failed. Please try again.'),
-                                          backgroundColor: Colors.red[700],
+                                          content: Text('Google sign up failed. Please try again.', style: TextStyle(color: contraryTextColor)),
+                                          backgroundColor: redColor,
                                         ),
                                       );
                                     }
@@ -589,15 +588,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 label: Text(
                                   'SIGN UP WITH GOOGLE',
                                   style: TextStyle(
-                                    color: Colors.black87,
+                                    color: textColor,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                     letterSpacing: 0.5,
                                   ),
                                 ),
                                 style: OutlinedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  side: BorderSide(color: Colors.black12, width: 1.5),
+                                  backgroundColor: cardColor,
+                                  side: BorderSide(color: dividerColor, width: 1.5),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15),
                                   ),
@@ -606,7 +605,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                             
-                            SizedBox(height: 30),
+                            const SizedBox(height: 30),
                             
                             // Login link
                             Row(
@@ -615,7 +614,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 Text(
                                   "Already have an account? ",
                                   style: TextStyle(
-                                    color: Colors.black54,
+                                    color: hintColor,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -631,7 +630,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   child: Text(
                                     'SIGN IN',
                                     style: TextStyle(
-                                      color: Color(0xFFA90015),
+                                      color: redColor,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
                                     ),
@@ -640,7 +639,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ],
                             ),
                             
-                            SizedBox(height: 40),
+                            const SizedBox(height: 40),
                           ],
                         ),
                       ),

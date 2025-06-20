@@ -6,6 +6,7 @@ import 'package:muscle_app/backend/achievement_manager.dart';
 import 'package:muscle_app/backend/marketplace_service.dart';
 import 'package:muscle_app/backend/routine_saver.dart';
 import 'package:muscle_app/backend/update_dock.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 class ViewMarketplaceRoutine extends StatefulWidget {
   final Map<String, dynamic> routine;
@@ -53,14 +54,11 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
     Icons.sports_football,
   ];
 
-
   @override
   void initState() {
     super.initState();
     _initializeRoutineData();
   }
-
-
 
   void _initializeRoutineData() {
     _selectedDays = List.generate(7, (_) => false);
@@ -132,18 +130,15 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
           );
 
           if (exerciseData != null) {
-            // Procesar nivel
             String level = (exerciseData["level"]?.toString() ?? "beginner").toLowerCase();
             int levelValue = levelToValue[level] ?? 2;
             maxLevel = max(maxLevel, levelValue);
 
-            // Procesar músculos
             List<String> primaryMuscles = List<String>.from(exerciseData["primaryMuscles"] ?? []);
             List<String> secondaryMuscles = List<String>.from(exerciseData["secondaryMuscles"] ?? []);
             allMuscles.addAll(primaryMuscles);
             allMuscles.addAll(secondaryMuscles);
 
-            // Calcular tiempo
             int series = (exercise['series'] as num? ?? 0).toInt();
             int reps = (exercise['reps'] as num? ?? 0).toInt();
             int duration = (exercise['duration'] as num? ?? 0).toInt();
@@ -151,7 +146,7 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
             if (duration > 0) {
               dayTimeInSecs += series * duration;
             } else {
-              dayTimeInSecs += series * reps * 5; // 5 segundos por rep
+              dayTimeInSecs += series * reps * 5;
             }
             
             dayTimeInSecs += (series - 1) * restTime;
@@ -204,7 +199,7 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: Colors.white,
+          backgroundColor: cardColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
           ),
@@ -215,7 +210,7 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
               children: [
                 Icon(
                   Icons.warning_rounded,
-                  color: Colors.red,
+                  color: redColor,
                   size: 48,
                 ),
                 const SizedBox(height: 16),
@@ -224,7 +219,7 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.red,
+                    color: redColor,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -233,7 +228,7 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.black,
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -244,7 +239,7 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: BorderSide(color: Colors.black),
+                          side: BorderSide(color: dividerColor),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -253,7 +248,7 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
                         child: Text(
                           'Cancel',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: textColor,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -263,7 +258,7 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+                          backgroundColor: redColor,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -282,26 +277,26 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
                                 SnackBar(
                                   content: Row(
                                     children: [
-                                      const Icon(Icons.check_circle, color: Colors.white),
+                                      Icon(Icons.check_circle, color: contraryTextColor),
                                       const SizedBox(width: 8),
                                       Text(
                                         'Routine deleted successfully',
                                         style: TextStyle(
-                                          color: Colors.white,
+                                          color: contraryTextColor,
                                           fontWeight: FontWeight.w500
                                         ),
                                       ),
                                     ],
                                   ),
-                                  backgroundColor: Colors.red,
+                                  backgroundColor: redColor,
                                   behavior: SnackBarBehavior.floating,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8)
                                   ),
                                 ),
                               );
-                              navigator.pop(); // Cierra el diálogo
-                              navigator.pop(); // Vuelve atrás
+                              navigator.pop();
+                              navigator.pop();
                             }
                           } catch (e) {
                             print('Error deleting routine: $e');
@@ -309,17 +304,17 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
                               SnackBar(
                                 content: Text(
                                   'Error: ${e.toString()}',
-                                  style: const TextStyle(color: Colors.white),
+                                  style: TextStyle(color: contraryTextColor),
                                 ),
-                                backgroundColor: Colors.red,
+                                backgroundColor: redColor,
                               ),
                             );
                           }
                         },
-                        child: const Text(
+                        child: Text(
                           'Delete',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: contraryTextColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -346,31 +341,31 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
     final double averageRating = widget.routine['averageRating']?.toDouble() ?? 4.5;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
+        backgroundColor: appBarBackgroundColor,
         elevation: 0,
-        shadowColor: Colors.grey.withOpacity(0.1),
+        shadowColor: shadowColor,
         automaticallyImplyLeading: false,
-        title: const Text(
+        title: Text(
           'Routine Details',
           style: TextStyle(
-            color: Colors.black87,
+            color: textColor,
           ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: textColor),
           onPressed: () {
             Navigator.pop(context);
-            UpdateDock.updateSystemUI(Colors.white);
+            UpdateDock.updateSystemUI(appBarBackgroundColor);
           },
         ),
         actions: [
           if (MarketplaceService.isOwner(widget.routine['creatorId']))
             IconButton(
-              icon: const Icon(Icons.delete, color: Color(0xFFA90015)),
+              icon: Icon(Icons.delete, color: redColor),
               onPressed: () => _showDeleteConfirmationDialog(context),
             ),
         ],
@@ -382,11 +377,13 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
             future: routineInfoFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator(color: Colors.red));
+                return Center(
+                  child: CircularProgressIndicator(color: redColor),
+                );
               }
 
               if (snapshot.hasError || !snapshot.hasData) {
-                return const _InfoCard(
+                return _InfoCard(
                   title: 'Error loading routine data',
                   content: 'Please try again later',
                 );
@@ -409,7 +406,7 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
                         if (result == true) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: const Text('Rating saved successfully!'),
+                              content: Text('Rating saved successfully!'),
                               duration: const Duration(seconds: 2),
                             ),
                           );
@@ -418,7 +415,8 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: const Text('Error saving rating!'),
+                              content: Text('Error saving rating!', style: TextStyle(color: contraryTextColor)),
+                              backgroundColor: redColor,
                               duration: const Duration(seconds: 2),
                             ),
                           );
@@ -431,11 +429,10 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
                     color: _getRoutineColor(routineName),
                     onPressed: () {
                       RoutineSaver.saveRoutineFromMarketplace(widget.routine);
-                      print(widget.routine['creatorId']);
                       AchievementManager().unlockAchievement("legend_badge", widget.routine['creatorId']);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: const Text('Routine added to your library!'),
+                          content: Text('Routine added to your library!'),
                           duration: const Duration(seconds: 2),
                         ),
                       );
@@ -537,9 +534,10 @@ class _RoutineHeader extends StatelessWidget {
           Text(
             name,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
+              color: textColor,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -553,13 +551,13 @@ class _RoutineHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: redColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               level[0].toUpperCase() + level.substring(1),
               style: TextStyle(
-                color: Color(0xFFA90015),
+                color: redColor,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -600,14 +598,13 @@ class __StarRatingState extends State<_StarRating> {
         return InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: () {
-            // AchievementManager().unlockAchievement("first_review");
             final newRating = index + 1;
             setState(() => currentRating = newRating.toDouble());
             widget.onRatingChanged(newRating);
           },
           child: Icon(
             _getStarIcon(index),
-            color: Color(0xFFA90015),
+            color: redColor,
             size: 30,
           ),
         );
@@ -640,16 +637,16 @@ class _AddToLibraryButton extends StatelessWidget {
     return Center(
       child: MaterialButton(
         elevation: 0,
-        color: Color(0xFFA90015),
+        color: redColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(25),
-        ), // Añadido el paréntesis que faltaba
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         onPressed: onPressed,
-        child: const Text(
+        child: Text(
           'Add to your library',
           style: TextStyle(
-            color: Colors.white,
+            color: contraryTextColor,
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
@@ -725,11 +722,11 @@ class _InfoTile extends StatelessWidget {
       width: span ? double.infinity : null,
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: shadowColor,
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -742,13 +739,14 @@ class _InfoTile extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, color: Color(0xFFA90015), size: 20),
+                Icon(icon, color: redColor, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
+                    color: textColor,
                   ),
                 ),
               ],
@@ -757,7 +755,7 @@ class _InfoTile extends StatelessWidget {
             Text(
               value,
               style: TextStyle(
-                color: Colors.grey[700],
+                color: hintColor,
                 fontSize: 13,
               ),
               maxLines: span ? 4 : 2,
@@ -784,23 +782,25 @@ class _WeekdaysSelector extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
+        Padding(
+          padding: const EdgeInsets.only(left: 4.0, bottom: 12.0),
           child: Text(
             'Training Days',
             style: TextStyle(
               fontSize: 18,
-              fontWeight: FontWeight.bold),
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
           ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: shadowColor,
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -814,16 +814,16 @@ class _WeekdaysSelector extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: selectedDays[index] ? Color(0xFFA90015) : Colors.white,
+                  color: selectedDays[index] ? redColor : cardColor,
                   border: Border.all(
-                    color: selectedDays[index] ? Colors.red : Colors.grey.shade300,
+                    color: selectedDays[index] ? redColor : dividerColor,
                     width: 2),
                 ),
                 child: Center(
                   child: Text(
                     weekdaysShort[index],
                     style: TextStyle(
-                      color: selectedDays[index] ? Colors.white : Colors.black87,
+                      color: selectedDays[index] ? Colors.white : textColor,
                       fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -860,19 +860,21 @@ class _DayExercises extends StatelessWidget {
           padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
           child: Text(
             '$weekDay - $dayName',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
-              fontWeight: FontWeight.bold),
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
           ),
         ),
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: shadowColor,
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -881,12 +883,12 @@ class _DayExercises extends StatelessWidget {
           child: Column(
             children: [
               if (exercises.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Text(
                     'No exercises for this day',
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: hintColor,
                       fontStyle: FontStyle.italic),
                   ),
                 ),
@@ -960,7 +962,6 @@ class _ExerciseItem extends StatelessWidget {
     final level = _getExerciseLevel();
     final imagePath = 'assets/muscle_images/${_getMuscleImage()}.png';
     
-    // Determinar qué texto mostrar
     final repsText = duration != null 
       ? '${duration}s × $series' 
       : '${reps ?? 0} × $series';
@@ -970,9 +971,9 @@ class _ExerciseItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: Colors.grey[50],
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: dividerColor),
         ),
         child: Row(
           children: [
@@ -980,7 +981,7 @@ class _ExerciseItem extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: _getBorderColor(level),
@@ -993,7 +994,7 @@ class _ExerciseItem extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Icon(
                     Icons.fitness_center,
-                    color: Colors.grey[600],
+                    color: hintColor,
                   ),
                 ),
               ),
@@ -1002,21 +1003,22 @@ class _ExerciseItem extends StatelessWidget {
             Expanded(
               child: Text(
                 name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w500,
+                  color: textColor,
                 ),
               ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Color(0xFFA90015).withOpacity(0.1),
+                color: redColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 repsText,
                 style: TextStyle(
-                  color: Color(0xFFA90015),
+                  color: redColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -1041,6 +1043,7 @@ class _InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
+      color: cardColor,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -1050,13 +1053,20 @@ class _InfoCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               content,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: TextStyle(
+                fontSize: 16,
+                color: hintColor,
+              ),
               textAlign: TextAlign.center,
             ),
           ],

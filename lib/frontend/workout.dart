@@ -14,6 +14,8 @@ import 'package:muscle_app/frontend/achievementLibrary.dart';
 import 'package:muscle_app/frontend/calendario.dart';
 import 'package:muscle_app/frontend/home.dart';
 import 'package:muscle_app/frontend/modofocus.dart';
+import 'package:muscle_app/frontend/restButton.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:muscle_app/frontend/infoExercise.dart';
@@ -57,14 +59,16 @@ Future<void> _scheduleEndOfDayReminderIfNeeded() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
+        backgroundColor: appBarBackgroundColor,
         elevation: 0,
-        shadowColor: Colors.grey.withOpacity(0.1),
-        title: const Text('My Workout'),
+        shadowColor: shadowColor,
+        title: Text(
+          'My Workout',
+          style: TextStyle(color: textColor)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -99,11 +103,11 @@ Future<void> _scheduleEndOfDayReminderIfNeeded() async {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                        Icon(Icons.error_outline, color: redColor, size: 60),
                         const SizedBox(height: 16),
                         Text(
                           'Error: ${snapshot.error}',
-                          style: const TextStyle(color: Colors.red),
+                          style: TextStyle(color: redColor),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -131,11 +135,11 @@ Future<void> _scheduleEndOfDayReminderIfNeeded() async {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: shadowColor,
             spreadRadius: 1,
             blurRadius: 6,
             offset: const Offset(0, 3),
@@ -147,34 +151,34 @@ Future<void> _scheduleEndOfDayReminderIfNeeded() async {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.fitness_center_outlined,
               size: 60,
-              color: Color(0xFFA90015),
+              color: redColor,
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'No active routines yet',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: textColor2,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Choose a routine to begin!',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey,
+                color: hintColor,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFA90015),
+                backgroundColor: redColor,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 shape: RoundedRectangleBorder(
@@ -296,7 +300,7 @@ class GoalsWidget extends StatelessWidget {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
+                    color: shadowColor,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -311,7 +315,7 @@ class GoalsWidget extends StatelessWidget {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: contraryTextColor.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -319,19 +323,19 @@ class GoalsWidget extends StatelessWidget {
                         children: [
                           Text(
                             streak.toString(),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 24, // Ligeramente más pequeño
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: contraryTextColor,
                             ),
                           ),
                           const SizedBox(width: 4),
-                          const Text(
+                          Text(
                             "DAYS",
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white70,
+                              color: contraryTextColor,
                             ),
                           ),
                         ],
@@ -347,16 +351,16 @@ class GoalsWidget extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.local_fire_department_rounded,
-                                color: Colors.white,
+                                color: contraryTextColor,
                                 size: streak > 7 ? 24 : 20, // Más pequeño
                               ),
                               const SizedBox(width: 6),
-                              const Text(
+                              Text(
                                 "STREAK",
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: contraryTextColor,
                                   letterSpacing: 0.8,
                                 ),
                               ),
@@ -365,8 +369,8 @@ class GoalsWidget extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             _getStreakMessage(),
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: contraryTextColor,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
@@ -414,7 +418,7 @@ class _DiesWidgetState extends State<DiesWidget> {
           margin: const EdgeInsets.symmetric(horizontal: 2),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
           decoration: BoxDecoration(
-              color: isToday ? const Color(0xFFA90015) : Colors.white,
+              color: isToday ? redColor : cardColor,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -424,7 +428,7 @@ class _DiesWidgetState extends State<DiesWidget> {
                 ),
               ],
               border: Border.all(
-                color: isToday ? Colors.transparent : Colors.grey.withOpacity(0.1),
+                color: isToday ? Colors.transparent : shadowColor,
                 width: 1,
               ),
           ),
@@ -436,7 +440,7 @@ class _DiesWidgetState extends State<DiesWidget> {
                       style: TextStyle(
                           fontSize: isToday ? 22 : 18,
                           fontWeight: FontWeight.bold,
-                          color: isToday ? Colors.white : Colors.grey[800],
+                          color: isToday ? textColor : textColor2,
                       ),
                   ),
                   const SizedBox(height: 4),
@@ -446,8 +450,8 @@ class _DiesWidgetState extends State<DiesWidget> {
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: isToday 
-                              ? Colors.white.withOpacity(0.9) 
-                              : Colors.grey[600],
+                              ? textColor 
+                              : hintColor,
                       ),
                       textAlign: TextAlign.center,
                   ),
@@ -459,7 +463,7 @@ class _DiesWidgetState extends State<DiesWidget> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: shadowColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Text(
@@ -511,11 +515,11 @@ class _DiesWidgetState extends State<DiesWidget> {
             return Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardColor,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.08),
+                  color: shadowColor,
                   blurRadius: 10,
                   spreadRadius: 2,
                   offset: const Offset(0, 4),
@@ -532,8 +536,8 @@ class _DiesWidgetState extends State<DiesWidget> {
                       'Schedule',
                       style: TextStyle(
                         fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.grey[800],
+                        fontWeight: FontWeight.w700,
+                        color: textColor2,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -543,7 +547,7 @@ class _DiesWidgetState extends State<DiesWidget> {
                         vertical: 6
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFA90015).withOpacity(0.1),
+                        color: redColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -552,7 +556,7 @@ class _DiesWidgetState extends State<DiesWidget> {
                           Icon(
                             Icons.calendar_month_rounded,
                             size: 18,
-                            color: const Color(0xFFA90015),
+                            color: redColor,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -560,7 +564,7 @@ class _DiesWidgetState extends State<DiesWidget> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFFA90015),
+                              color: redColor,
                             ),
                           ),
                         ],
@@ -576,8 +580,8 @@ class _DiesWidgetState extends State<DiesWidget> {
                           '${yesterday.day}',
                           names.yesterday,
                           false,
-                          Colors.grey[100]!,
-                          Colors.grey[700]!,
+                          Colors.transparent,
+                          Colors.transparent,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -596,8 +600,8 @@ class _DiesWidgetState extends State<DiesWidget> {
                           '${tomorrow.day}',
                           names.tomorrow,
                           false,
-                          Colors.grey[100]!,
-                          Colors.grey[700]!,
+                          Colors.transparent,
+                          Colors.transparent,
                         ),
                       ),
                     ],
@@ -652,9 +656,52 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
     dayIndex = activeRoutine['days'].indexWhere(
       (day) => day['weekDay'] == todayName,
     );
-    final dayName = widget.workoutData['dayName'];
+
     final prefs = await SharedPreferences.getInstance();
+    String? savedDay = prefs.getString('selectedDay');
+    String? savedDate = prefs.getString('selectedDate');
+
+    var dayName = widget.workoutData['dayName'];
+
+    // Comprobar si el día guardado es de hoy
+    bool isSameDayAsSelected = false;
+    if (savedDate != null) {
+      final savedDateTime = DateTime.parse(savedDate);
+      final now = DateTime.now();
+      isSameDayAsSelected = savedDateTime.year == now.year &&
+          savedDateTime.month == now.month &&
+          savedDateTime.day == now.day;
+    }
+
+    // NUEVO: Si hay un día guardado y es de hoy, cargar el workout de ese día
+    if (savedDay != null && isSameDayAsSelected) {
+      final workout = await TodaysWorkout.getWorkoutForDay(savedDay);
+      if (workout != null) {
+        widget.workoutData.clear();
+        widget.workoutData.addAll(workout);
+        dayName = workout['dayName'];
+      }
+      // Buscar el día en la rutina activa que corresponde al día guardado
+      final savedDayIndex = activeRoutine['days'].indexWhere(
+        (day) => day['weekDay'] == savedDay
+      );
+      if (savedDayIndex != -1) {
+        dayName = activeRoutine['days'][savedDayIndex]['dayName'];
+      }
+    } else {
+      // Si no hay día guardado o es de otro día, usar el día actual de la rutina
+      if (dayIndex != -1) {
+        dayName = activeRoutine['days'][dayIndex]['dayName'];
+      }
+      // Limpiar las preferencias guardadas
+      await prefs.remove('selectedDay');
+      await prefs.remove('selectedDate');
+    }
+    print("SharedPrefs: ${prefs.getKeys()}");
+    print("SharedPrefs day: ${prefs.getString('selectedDay')}");
+    print("SharedPrefs date: ${prefs.getString('selectedDate')}");
     final savedData = prefs.getString('workout_progress_$dayName');
+    print("Saved data: $savedData");
 
     if (savedData != null && savedData.isNotEmpty) {
       final decoded = json.decode(savedData);
@@ -736,6 +783,8 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
         (j) => TextEditingController(text: currentReps[i][j]),
       );
     });
+
+    print("Current weights: $currentWeights");
   }
 
   Future<void> _saveWorkoutProgress() async {
@@ -797,7 +846,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
     setState(() {
       _allExercises = all;
     });
-    UpdateDock.updateSystemUI(Colors.white);
+    UpdateDock.updateSystemUI(appBarBackgroundColor);
   }
 
   Map<String, dynamic>? _findFullExercise(dynamic ex) {
@@ -825,10 +874,10 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
     child: Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
+        color: cardColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: shadowColor,
             blurRadius: 6,
             spreadRadius: 1,
             offset: const Offset(0, 2),
@@ -840,13 +889,13 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: onPressed,
-          splashColor: const Color(0xFFA90015).withOpacity(0.2),
-          highlightColor: const Color(0xFFA90015).withOpacity(0.1),
+          splashColor: redColor.withOpacity(0.2),
+          highlightColor: redColor.withOpacity(0.1),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Icon(
               icon,
-              color: const Color(0xFFA90015),
+              color: redColor,
               size: 32,
             ),
           ),
@@ -859,8 +908,8 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator(
-        color: Color(0xFFA90015),
+      return Center(child: CircularProgressIndicator(
+        color: redColor,
       ));
     }
 
@@ -871,11 +920,11 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
+            color: shadowColor,
             spreadRadius: 2,
             blurRadius: 10,
             offset: const Offset(0, 4),
@@ -897,20 +946,20 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Icon(
+        Icon(
           Icons.fitness_center,
           size: 40, // Icono más pequeño
-          color: Color(0xFFA90015),
+          color: redColor,
         ),
         const SizedBox(height: 24),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             workoutData['restMessage'] ?? 'Time to recover! 💪',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22, // Tamaño ligeramente reducido
               fontWeight: FontWeight.w600, // Peso intermedio
-              color: Colors.black87,
+              color: textColor2,
               height: 1.3, // Interlineado mejorado
             ),
             textAlign: TextAlign.center,
@@ -923,9 +972,9 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
             padding: const EdgeInsets.only(top: 16),
             child: Text(
               'Next workout: ${workoutData['nextWorkoutDay']}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
-                color: Color(0xFFA90015),
+                color: redColor,
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
@@ -942,11 +991,11 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
       return Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
+              color: shadowColor,
               spreadRadius: 2,
               blurRadius: 8,
               offset: const Offset(0, 4),
@@ -960,14 +1009,14 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.done_all_rounded, color: Color(0xFFA90015), size: 50),
+              Icon(Icons.done_all_rounded, color: redColor, size: 50),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 "Workout completed for today!",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
-                  color: Colors.black87,
+                  color: textColor2,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -976,7 +1025,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                 "Good job. Rest and get ready for the next challenge.",
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey[600],
+                  color: hintColor,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -1017,8 +1066,8 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                Colors.white,
-                                Colors.grey.shade50,
+                                cardColor,
+                                cardColor,
                               ],
                             ),
                           ),
@@ -1031,16 +1080,16 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                                   children: [
                                     Icon(
                                       Icons.calendar_today,
-                                      color: const Color(0xFFA90015),
+                                      color: redColor,
                                       size: 24,
                                     ),
                                     const SizedBox(width: 12),
-                                    const Text(
+                                    Text(
                                       'Choose a day',
                                       style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
-                                        color: Color(0xFF000000),
+                                        color: textColor2,
                                       ),
                                     ),
                                   ],
@@ -1066,7 +1115,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                                               decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.circular(12),
                                                 border: Border.all(
-                                                  color: Colors.grey.shade200,
+                                                  color: textColor.withOpacity(0.1),
                                                   width: 1,
                                                 ),
                                               ),
@@ -1075,25 +1124,25 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                                                   Container(
                                                     width: 8,
                                                     height: 8,
-                                                    decoration: const BoxDecoration(
-                                                      color: Color(0xFFA90015),
+                                                    decoration: BoxDecoration(
+                                                      color: redColor,
                                                       shape: BoxShape.circle,
                                                     ),
                                                   ),
                                                   const SizedBox(width: 12),
                                                   Text(
                                                     day['weekDay'] ?? '',
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                       fontSize: 16,
                                                       fontWeight: FontWeight.w500,
-                                                      color: Color(0xFF000000),
+                                                      color: textColor2,
                                                     ),
                                                   ),
                                                   const Spacer(),
                                                   Icon(
                                                     Icons.arrow_forward_ios,
                                                     size: 14,
-                                                    color: Colors.grey.shade400,
+                                                    color: textColor2,
                                                   ),
                                                 ],
                                               ),
@@ -1118,7 +1167,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                                     child: Text(
                                       'Cancel',
                                       style: TextStyle(
-                                        color: Colors.grey.shade600,
+                                        color: hintColor,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -1133,6 +1182,12 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                   );
 
                   if (selectedDay != null) {
+                    // Guardar el weekDay y la fecha actual
+                    final prefs = await SharedPreferences.getInstance();
+                    // Aquí selectedDay ya es el weekDay (Monday, Tuesday, etc.)
+                    await prefs.setString('selectedDay', selectedDay);
+                    await prefs.setString('selectedDate', DateTime.now().toIso8601String());
+
                     final workout = await TodaysWorkout.getWorkoutForDay(selectedDay);
                     if (workout != null) {
                       setState(() {
@@ -1148,16 +1203,16 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: Colors.white,
+                    color: cardColor,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: shadowColor,
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
                     ],
                     border: Border.all(
-                      color: Colors.grey.shade100,
+                      color: shadowColor,
                       width: 1,
                     ),
                   ),
@@ -1176,11 +1231,17 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                               letterSpacing: 0.6,
                             ),
                             children: <TextSpan>[
-                              const TextSpan(text: 'Today - '),
+                              TextSpan(
+                                text: 'Today - ',
+                                style: TextStyle(
+                                  color: textColor, // Usa tu variable global (se ajusta automáticamente al tema)
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                               TextSpan(
                                 text: dayName.length > 15 ? '${dayName.substring(0, 15)}...' : dayName,
-                                style: const TextStyle(
-                                  color: Color(0xFFA90015),
+                                style: TextStyle(
+                                  color: redColor,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -1191,7 +1252,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                       const SizedBox(width: 8),
                       Icon(
                         Icons.keyboard_arrow_down,
-                        color: const Color(0xFFA90015),
+                        color: redColor,
                         size: 20,
                       ),
                     ],
@@ -1205,7 +1266,20 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
               Row(
                 children: [
                   Expanded(
-                    child: WarmUpButton(dayRoutine: exercises),
+                    child: Container(
+                      height: 46, // Altura fija para todos los botones
+                      child: WarmUpButton(dayRoutine: exercises),
+                    ),
+                  ),
+                  const SizedBox(width: 8), // Espaciado consistente
+                  // Rest Button
+                  Expanded(
+                    child: Container(
+                      height: 46, // Misma altura
+                      child: RestButton(
+                        initialTime: activeRoutine['restTime'],
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   ElevatedButton(
@@ -1219,39 +1293,39 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            backgroundColor: Colors.white,
+                            backgroundColor: cardColor,
                             title: Row(
                               children: [
                                 Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFA90015).withOpacity(0.1),
+                                    color: redColor.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.done_all_rounded,
-                                    color: Color(0xFFA90015),
+                                    color: redColor,
                                     size: 24,
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                const Expanded(
+                                Expanded(
                                   child: Text(
                                     'Are you sure?',
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700,
-                                      color: Color(0xFF2D2D2D),
+                                      color: textColor2,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                            content: const Text(
+                            content: Text(
                               'You are about to mark all exercises as done for today. This action cannot be undone.',
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Color(0xFF666666),
+                                color: hintColor,
                                 height: 1.4,
                               ),
                             ),
@@ -1265,10 +1339,10 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'Cancel',
                                   style: TextStyle(
-                                    color: Color(0xFF666666),
+                                    color: hintColor,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -1276,7 +1350,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                               ElevatedButton(
                                 onPressed: () => Navigator.of(context).pop(true),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFA90015),
+                                  backgroundColor: redColor,
                                   foregroundColor: Colors.white,
                                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                                   shape: RoundedRectangleBorder(
@@ -1323,7 +1397,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFA90015),
+                      backgroundColor: redColor,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -1358,11 +1432,11 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(18),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.15),
+                    color: shadowColor,
                     spreadRadius: 1,
                     blurRadius: 7,
                     offset: const Offset(0, 4),
@@ -1426,7 +1500,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(28.0),
                         ),
-                        backgroundColor: Colors.white,
+                        backgroundColor: cardColor,
                         elevation: 8,
                         titlePadding: const EdgeInsets.only(top: 32, left: 32, right: 32, bottom: 16),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 32),
@@ -1434,12 +1508,12 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                         title: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               "Focus Mode",
                               style: TextStyle(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 28,
-                                color: Colors.black87,
+                                color: textColor2,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -1447,7 +1521,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                               height: 4,
                               width: 72,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFA90015),
+                                color: redColor,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
@@ -1461,22 +1535,22 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: Colors.grey[300]!,
+                                  color: cardColor,
                                   width: 2,
                                 ),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.do_not_disturb_on_outlined,
-                                size: 60,
-                                color: Color(0xFFA90015),
+                                size: 80,
+                                color: redColor,
                               ),
                             ),
                             const SizedBox(height: 32),
-                            const Text(
+                            Text(
                               "Silence distractions and focus on your workout.",
                               style: TextStyle(
                                 fontSize: 17,
-                                color: Colors.black87,
+                                color: textColor2,
                                 height: 1.5,
                               ),
                               textAlign: TextAlign.center,
@@ -1486,7 +1560,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                               "You will not receive notifications while this mode is activated.",
                               style: TextStyle(
                                 fontSize: 15,
-                                color: Colors.grey[700], 
+                                color: hintColor, 
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -1501,11 +1575,11 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            child: const Text(
+                            child: Text(
                               "Cancel",
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                color: Colors.black54,
+                                color: hintColor,
                                 fontSize: 16,
                               ),
                             ),
@@ -1514,14 +1588,14 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                           const SizedBox(width: 8),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFA90015),
+                              backgroundColor: redColor,
                               foregroundColor: Colors.white,
                               elevation: 4,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                              shadowColor: const Color(0xFFA90015).withOpacity(0.4),
+                              shadowColor: shadowColor,
                             ),
                             child: const Text(
                               "Focus!",
@@ -1611,7 +1685,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                 },
                 borderRadius: BorderRadius.circular(20),
                 child: Icon(Icons.info_outline_rounded, 
-                  color: Color(0xFFA90015), 
+                  color: redColor, 
                   size: 22),
               ),
               const SizedBox(width: 12),
@@ -1621,7 +1695,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey[800],
+                    color: textColor2,
                   ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
@@ -1634,20 +1708,20 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: const Color(0xFFA90015).withOpacity(0.1),
+            color: redColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
             setsText,
             style: TextStyle(
-              color: Color(0xFFA90015),
+              color: redColor,
               fontWeight: FontWeight.w800,
             ),
           ),
         ),
         const SizedBox(width: 8),
         Icon(Icons.keyboard_arrow_down_rounded, 
-          color: Colors.grey[500]),
+          color: hintColor),
       ],
     );
   }
@@ -1709,7 +1783,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                       );
                     },
                     child: Icon(Icons.info_outline_rounded, 
-                      color: Color(0xFFA90015), 
+                      color: redColor, 
                       size: 22),
                   ),
                   const SizedBox(width: 12),
@@ -1720,7 +1794,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[800],
+                        color: textColor2,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1732,24 +1806,24 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Color(0xFFA90015).withOpacity(0.1),
+                color: redColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 isTimed ? '$series x ${duration}s' : '$series x ${reps}',
                 style: TextStyle(
-                  color: Color(0xFFA90015),
+                  color: redColor,
                   fontWeight: FontWeight.w800,
                 ),
               ),
             ),
             const SizedBox(width: 8),
-            Icon(Icons.keyboard_arrow_up_rounded, color: Colors.grey[500]),
+            Icon(Icons.keyboard_arrow_up_rounded, color: hintColor),
           ],
         ),
 
         const SizedBox(height: 12),
-        Divider(height: 1, color: Colors.grey[300]),
+        Divider(height: 1, color: dividerColor),
 
         // Encabezado de columnas (Set, Kg, Reps/Seconds)
         Padding(
@@ -1763,7 +1837,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                   "Set",
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
-                    color: Colors.grey[700],
+                    color: hintColor,
                   ),
                 ),
               ),
@@ -1774,7 +1848,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                     "Kg",
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
-                      color: Colors.grey[700],
+                      color: hintColor,
                     ),
                   ),
                 ),
@@ -1786,7 +1860,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                     "Reps",
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
-                      color: Colors.grey[700],
+                      color: hintColor,
                     ),
                   ),
                 ),
@@ -1825,8 +1899,8 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: seriesDone[exerciseIndex][index]
-                            ? Color(0xFFA90015)
-                            : Colors.grey[600],
+                            ? redColor
+                            : textColor2,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -1840,11 +1914,11 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                         hintText: 'kg',
-                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        hintStyle: TextStyle(color: hintColor),
                         filled: true,
                         fillColor: seriesDone[exerciseIndex][index]
-                            ? Colors.grey[50]
-                            : Colors.grey[100],
+                            ? shadowColor
+                            : shadowColor,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
@@ -1852,7 +1926,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: Color(0xFFA90015),
+                            color: redColor,
                             width: 1.5,
                           ),
                         ),
@@ -1865,8 +1939,8 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: seriesDone[exerciseIndex][index]
-                            ? Colors.grey[400]
-                            : Colors.black,
+                            ? hintColor
+                            : textColor2,
                       ),
                       keyboardType: TextInputType.number,
                       onChanged: (newValue) {
@@ -1886,11 +1960,11 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                         hintText: 'reps',
-                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        hintStyle: TextStyle(color: hintColor),
                         filled: true,
                         fillColor: seriesDone[exerciseIndex][index]
-                            ? Colors.grey[50]
-                            : Colors.grey[100],
+                            ? shadowColor
+                            : shadowColor,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
@@ -1898,7 +1972,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: Color(0xFFA90015),
+                            color: redColor,
                             width: 1.5,
                           ),
                         ),
@@ -1911,8 +1985,8 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: seriesDone[exerciseIndex][index]
-                            ? Colors.grey[400]
-                            : Colors.black,
+                            ? hintColor
+                            : textColor2,
                       ),
                       keyboardType: TextInputType.number,
                       onChanged: (newValue) {
@@ -1931,11 +2005,11 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
                         hintText: 'secs',
-                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        hintStyle: TextStyle(color: hintColor),
                         filled: true,
                         fillColor: seriesDone[exerciseIndex][index]
-                            ? Colors.grey[50]
-                            : Colors.grey[100],
+                            ? shadowColor
+                            : shadowColor,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
@@ -1943,7 +2017,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: Color(0xFFA90015),
+                            color: redColor,
                             width: 1.5,
                           ),
                         ),
@@ -1956,8 +2030,8 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: seriesDone[exerciseIndex][index]
-                            ? Colors.grey[400]
-                            : Colors.black,
+                            ? hintColor
+                            : textColor2,
                       ),
                       keyboardType: TextInputType.number,
                       onChanged: (newValue) {
@@ -1985,13 +2059,13 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                           _saveWorkoutProgress();
                         });
                       },
-                      activeColor: Colors.red,
+                      activeColor: redColor,
                       fillColor: MaterialStateProperty.resolveWith<Color>(
                         (Set<MaterialState> states) {
                           if (states.contains(MaterialState.selected)) {
-                            return const Color(0xFFA90015);
+                            return redColor;
                           }
-                          return Colors.white;
+                          return cardColor;
                         },
                       ),
                     ),

@@ -77,7 +77,7 @@ class RoutineNotificationManager {
       now.year,
       now.month,
       now.day + daysUntilTarget,
-      8, // 8 AM
+      17, // 5 PM
       0,
       0,
     );

@@ -6,6 +6,7 @@ import 'package:muscle_app/backend/get_active_routine.dart';
 import 'package:muscle_app/backend/save_stats.dart';
 import 'package:muscle_app/frontend/editProfile.dart';
 import 'package:muscle_app/frontend/achievementLibrary.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -30,13 +31,13 @@ class _ProfilePageState extends State<ProfilePage> {
     const Color(0xFF388E3C),
     const Color(0xFFF57C00),
   ];
-  final _accentColor = const Color(0xFFA90015);
-  final _backgroundColor = Colors.grey.shade50;
-  final _cardColor = Colors.white;
-  final _textColor = const Color(0xFF2A2522);
-  final _secondaryTextColor = Colors.grey.shade600;
+  final _accentColor = redColor;
+  final _backgroundColor = backgroundColor;
+  final _cardColor = cardColor;
+  final _textColor = textColor;
+  final _secondaryTextColor = hintColor;
 
-  bool _isLoading = true; // <--- Añade esto
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -62,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
           userData[1] = activeRoutine['rName']?.toString() ?? 'None';
         }
         proportionData = propData;
-        _isLoading = false; // <--- Solo aquí dejamos de cargar
+        _isLoading = false;
       });
     } else {
       setState(() {
@@ -115,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: _cardColor,
+        backgroundColor: appBarBackgroundColor,
         elevation: 0,
         centerTitle: true,
         title: Text(
@@ -125,15 +126,15 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.settings, color: _textColor),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+          Builder(
+            builder: (context) => IconButton(
+              icon: Icon(Icons.settings, color: _textColor),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
             ),
           ),
         ],
       ),
+      endDrawer: const EditProfileDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -152,178 +153,176 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileCard() {
-  return Container(
-    decoration: BoxDecoration(
-      color: _cardColor,
-      borderRadius: BorderRadius.circular(16),
-    ),
-    padding: const EdgeInsets.all(16),
-    child: Row(
-      children: [
-        Container(
-          width: 64,
-          height: 64,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: _accentColor.withOpacity(0.1),
-          ),
-          child: Icon(Icons.person, color: _accentColor, size: 32),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                userData[0], // Added null check, handle potential null userData
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
-                  color: _textColor,
-                ),
-              ),
-            ],
-          ),
-        ),
-        IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.amber,
-              shape: BoxShape.rectangle,
-              borderRadius: BorderRadius.circular(12)
-            ),
-            child:
-                const Icon(Icons.emoji_events, color: Colors.white, size: 24),
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AchievementLibraryScreen()),
-            );
-          },
-        ),
-      ],
-    ),
-  );
-}
-
-  Widget _buildRoutineCard() {
-  return Container(
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.1),
-          blurRadius: 20,
-          spreadRadius: 2,
-        ),
-      ],
-    ),
-    padding: const EdgeInsets.all(20),
-    child: IntrinsicHeight(
+    return Container(
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildRoutineStat(
-            'fitness-center', 
-            'ROUTINE', 
-            userData[1].length > 15 ? userData[1].substring(0, 15) : userData[1]
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _accentColor.withOpacity(0.1),
+            ),
+            child: Icon(Icons.person, color: _accentColor, size: 32),
           ),
-          VerticalDivider(
-            color: Colors.grey.shade200,
-            thickness: 1,
-            indent: 8,
-            endIndent: 8,
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  userData[0],
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                    color: _textColor,
+                  ),
+                ),
+              ],
+            ),
           ),
-          _buildRoutineStat('calendar-today', 'DAYS/WEEK', DPW.toString()),
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.amber,
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(12)
+              ),
+              child:
+                  const Icon(Icons.emoji_events, color: Colors.white, size: 24),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => AchievementLibraryScreen()),
+              );
+            },
+          ),
         ],
       ),
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildRoutineStat(String icon, String title, String value) {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Icon(icon == 'fitness-center' ? Icons.fitness_center_rounded : Icons.calendar_today_rounded,
-          color: _accentColor, size: 22),
-      const SizedBox(height: 12),
-      Text(title,
-          style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 12,
-              fontWeight: FontWeight.w600)),
-      const SizedBox(height: 4),
-      Text(value,
-          style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF2A2522))),
-    ],
-  );
-}
+  Widget _buildRoutineCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: shadowColor,
+            blurRadius: 20,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildRoutineStat(
+              'fitness-center', 
+              'ROUTINE', 
+              userData[1].length > 15 ? userData[1].substring(0, 15) : userData[1]
+            ),
+            VerticalDivider(
+              color: dividerColor,
+              thickness: 1,
+              indent: 8,
+              endIndent: 8,
+            ),
+            _buildRoutineStat('calendar-today', 'DAYS/WEEK', DPW.toString()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoutineStat(String icon, String title, String value) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon == 'fitness-center' ? Icons.fitness_center_rounded : Icons.calendar_today_rounded,
+            color: _accentColor, size: 22),
+        const SizedBox(height: 12),
+        Text(title,
+            style: TextStyle(
+                color: _secondaryTextColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w600)),
+        const SizedBox(height: 4),
+        Text(value,
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: _textColor)),
+      ],
+    );
+  }
 
   Widget _buildToggleButtons() {
-  return Container(
-    height: 48,
-    decoration: BoxDecoration(
-      color: _cardColor,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Row(
-      children: [
-        Expanded(
-          child: InkWell(
-            onTap: () => setState(() => _showExercise = true),
-            borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
-            child: Container(
-              decoration: BoxDecoration(
-                color: _showExercise ? _accentColor : Colors.transparent,
-                borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
-              ), // Removed the extra ')' here
-              child: Center(
-                child: Text(
-                  'Exercise',
-                  style: TextStyle(
-                    color: _showExercise ? Colors.white : _textColor,
-                    fontWeight: FontWeight.w600,
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () => setState(() => _showExercise = true),
+              borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: _showExercise ? _accentColor : Colors.transparent,
+                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
+                ),
+                child: Center(
+                  child: Text(
+                    'Exercise',
+                    style: TextStyle(
+                      color: _showExercise ? Colors.white : _textColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        // Removed the extra ')' here
-        Expanded(
-          child: InkWell(
-            onTap: () => setState(() => _showExercise = false),
-            borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
-            child: Container(
-              decoration: BoxDecoration(
-                color: !_showExercise ? _accentColor : Colors.transparent,
-                borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
-              ), // Removed the extra ')' here
-              child: Center(
-                child: Text(
-                  'Proportion',
-                  style: TextStyle(
-                    color: !_showExercise ? Colors.white : _textColor,
-                    fontWeight: FontWeight.w600,
+          Expanded(
+            child: InkWell(
+              onTap: () => setState(() => _showExercise = false),
+              borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: !_showExercise ? _accentColor : Colors.transparent,
+                  borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
+                ),
+                child: Center(
+                  child: Text(
+                    'Proportion',
+                    style: TextStyle(
+                      color: !_showExercise ? Colors.white : _textColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        // Removed the extra ')' here
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _buildChartContainer() {
     return Container(
@@ -430,7 +429,7 @@ Widget _buildRoutineStat(String icon, String title, String value) {
                     label: Text(
                       exercise['name'] as String,
                       style: TextStyle(
-                        color: _selectedExerciseId == id ? Colors.white : _textColor,
+                        color: _selectedExerciseId == id ? contraryTextColor : _textColor,
                         fontSize: 12,
                       ),
                     ),
@@ -523,7 +522,7 @@ Widget _buildRoutineStat(String icon, String title, String value) {
                         final label = (index >= 0 && index < dateLabels.length) ? dateLabels[index] : '';
                         return LineTooltipItem(
                           '$label\n${spot.y.toStringAsFixed(1)} kg',
-                          const TextStyle(color: Colors.white, fontSize: 12),
+                          TextStyle(color: contraryTextColor, fontSize: 12),
                         );
                       }).toList();
                     },
@@ -568,14 +567,12 @@ Widget _buildRoutineStat(String icon, String title, String value) {
   }
 
   Widget _buildProportionChart() {
-    // Si no hay datos realmente no pintamos nada
     if (proportionData.isEmpty || proportionData.every((v) => v == 0.0)) {
-      return const Center(child: Text("No proportion data available"));
+      return Center(child: Text("No proportion data available", style: TextStyle(color: _secondaryTextColor)));
     }
 
     final double total = proportionData.fold(0.0, (a, b) => a + b);
     final screenWidth = MediaQuery.of(context).size.width;
-    // Mantenemos el tamaño del gráfico en 40%
     final chartSize = screenWidth * 0.4;
 
     return SingleChildScrollView(
@@ -583,21 +580,18 @@ Widget _buildRoutineStat(String icon, String title, String value) {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Título en su propia sección
           Container(
             padding: const EdgeInsets.only(top: 20, bottom: 8),
             width: double.infinity,
-            child: const Text(
+            child: Text(
               'Muscle Group Distribution',
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: _textColor),
             ),
           ),
           
-          // Añadimos un SizedBox para crear más espacio entre el título y el gráfico
           const SizedBox(height: 25),
           
-          // Contenedor para el gráfico
           Container(
             margin: const EdgeInsets.only(bottom: 20),
             height: chartSize,
@@ -627,12 +621,11 @@ Widget _buildRoutineStat(String icon, String title, String value) {
             ),
           ),
           
-          // Leyenda mejorada
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: failedColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Wrap(
@@ -654,9 +647,10 @@ Widget _buildRoutineStat(String icon, String title, String value) {
                     const SizedBox(width: 6),
                     Text(
                       muscleGroups[i], 
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
+                        color: _textColor,
                       ),
                     ),
                   ],

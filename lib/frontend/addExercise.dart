@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:muscle_app/backend/exercise_loader.dart';
 import 'package:muscle_app/backend/update_dock.dart';
 import 'package:muscle_app/frontend/infoExercise.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 class AddExerciseScreen extends StatefulWidget {
   final List<Map<String, dynamic>> recentExercises;
@@ -34,7 +35,6 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
 
   Future<void> _loadInitialData() async {
     final allExercises = await ExerciseLoader.importExercises();
-    print("HOLA: $allExercises");
     setState(() {
       _allExercises = allExercises;
       _visibleExercises = _allExercises.take(_pageSize).toList();
@@ -84,18 +84,15 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
   }
 
   Future<void> _toggleExerciseSelection(Map<String, dynamic> exercise) async {
-    // Check if the exercise is already selected
     bool isSelected = _selectedExercises.any((e) => e['eID'] == exercise['eID']);
     
     if (isSelected) {
-      // Remove it directly
       if (mounted) {
         setState(() {
           _selectedExercises.removeWhere((e) => e['eID'] == exercise['eID']);
         });
       }
     } else {
-      // Show dialog to get reps/sets
       final result = await showDialog(
         context: context,
         builder: (context) => RepsSetsDialog(exercise: exercise),
@@ -137,7 +134,7 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: backgroundColor,
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -153,39 +150,38 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: Colors.white,
+      backgroundColor: appBarBackgroundColor,
       surfaceTintColor: Colors.transparent, 
       centerTitle: true,
       elevation: 0, 
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             'Add Exercises',
-            style: TextStyle(color: Colors.black87),
+            style: TextStyle(color: textColor),
           ),
           if (_selectedExercises.isNotEmpty)
             Text(
               '${_selectedExercises.length} selected',
-              style: const TextStyle(color: Color(0xFFA90015) , fontSize: 14),
+              style: TextStyle(color: redColor, fontSize: 14),
             ),
         ],
       ),
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
+        icon: Icon(Icons.arrow_back, color: textColor),
         onPressed: () {
-            Navigator.pop(context);
-            UpdateDock.updateSystemUI(Colors.white);
-          },
+          Navigator.pop(context);
+          UpdateDock.updateSystemUI(appBarBackgroundColor);
+        },
       ),
       actions: [
         if (_selectedExercises.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: TextButton.icon(
-              icon: const Icon(Icons.check, color: Color(0xFFA90015) ),
-              label: const Text('SAVE', 
-                style: TextStyle(color: Color(0xFFA90015) )),
+              icon: Icon(Icons.check, color: redColor),
+              label: Text('SAVE', style: TextStyle(color: redColor)),
               onPressed: () => Navigator.pop(context, _selectedExercises),
             ),
           ),
@@ -200,9 +196,10 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
         controller: _searchController,
         decoration: InputDecoration(
           filled: true,
-          fillColor: Colors.white,
+          fillColor: cardColor,
           hintText: 'Search exercises...',
-          prefixIcon: const Icon(Icons.search, color: Colors.grey),
+          hintStyle: TextStyle(color: hintColor),
+          prefixIcon: Icon(Icons.search, color: hintColor),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
             borderSide: BorderSide.none,
@@ -214,7 +211,7 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
   }
 
   Widget _buildExerciseList() {
-    UpdateDock.updateSystemUI(Colors.grey[50]!);
+    UpdateDock.updateSystemUI(backgroundColor);
     return ListView.builder(
       controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
@@ -235,8 +232,9 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Material(
         borderRadius: BorderRadius.circular(15),
-        color: Colors.white,
+        color: cardColor,
         elevation: 2,
+        shadowColor: shadowColor,
         child: InkWell(
           borderRadius: BorderRadius.circular(15),
           onTap: () => _toggleExerciseSelection(exercise),
@@ -251,13 +249,14 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(exercise['name'],
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600)),
+                            fontWeight: FontWeight.w600,
+                            color: textColor)),
                       const SizedBox(height: 4),
                       Text(exercise['bodyPart'].toString().toUpperCase(),
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: hintColor,
                             fontSize: 12,
                             fontWeight: FontWeight.w500)),
                     ],
@@ -273,13 +272,11 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
   }
 
   Widget _buildExerciseIcon(Map<String, dynamic> exercise) {
-    // Obtener el músculo principal y el nivel
     final primaryMuscle = exercise['primaryMuscles'].isNotEmpty 
         ? exercise['primaryMuscles'][0]
         : 'default';
     final level = exercise['level']?.toString().toLowerCase() ?? 'beginner';
 
-    // Obtener el color del borde según el nivel
     Color getBorderColor() {
       switch (level) {
         case 'intermediate':
@@ -291,7 +288,6 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
       }
     }
 
-    // Formatear nombre de la imagen
     final imageName = primaryMuscle.toLowerCase().replaceAll(' ', '_');
     final imagePath = 'assets/muscle_images/$imageName.png';
 
@@ -299,7 +295,7 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
       width: 50,
       height: 50,
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Colors.white,
         shape: BoxShape.circle,
         border: Border.all(
           color: getBorderColor(),
@@ -312,7 +308,7 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) => Icon(
             Icons.fitness_center,
-            color: Colors.grey[600],
+            color: hintColor,
           ),
         ),
       ),
@@ -324,7 +320,7 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
-          icon: const Icon(Icons.info_outline, color: Color(0xFFA90015) ),
+          icon: Icon(Icons.info_outline, color: redColor),
           onPressed: () => _showExerciseInfo(exercise),
         ),
         const SizedBox(width: 8),
@@ -332,14 +328,14 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
           width: 24,
           height: 24,
           decoration: BoxDecoration(
-            color: isSelected ? Color(0xFFA90015) : Colors.transparent,
+            color: isSelected ? redColor : Colors.transparent,
             shape: BoxShape.circle,
             border: Border.all(
-              color: isSelected ? Color(0xFFA90015) : Colors.grey,
+              color: isSelected ? redColor : dividerColor,
               width: 2),
           ),
           child: isSelected 
-              ? const Icon(Icons.check, color: Colors.white, size: 16)
+              ? Icon(Icons.check, color: contraryTextColor, size: 16)
               : null,
         ),
       ],
@@ -350,12 +346,11 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Center(
-        child: CircularProgressIndicator(color: Color(0xFFA90015)),
+        child: CircularProgressIndicator(color: redColor),
       ),
     );
   }
 }
-
 
 class RepsSetsDialog extends StatefulWidget {
   final Map<String, dynamic> exercise;
@@ -371,29 +366,29 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
   final repsController = TextEditingController(text: '12');
   final durationController = TextEditingController(text: '30');
   
-  // Track if we're using reps (true) or duration (false)
   bool useReps = true;
   
   @override
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: cardColor,
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(widget.exercise['name'],
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87)),
+                  color: textColor)),
             const SizedBox(height: 20),
             
             // Mode selector
             Container(
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: backgroundColor,
                 borderRadius: BorderRadius.circular(25),
               ),
               child: Row(
@@ -404,14 +399,14 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: useReps ? const Color(0xFFA90015) : Colors.transparent,
+                          color: useReps ? redColor : Colors.transparent,
                           borderRadius: BorderRadius.circular(25),
                         ),
                         child: Center(
                           child: Text(
                             'REPS',
                             style: TextStyle(
-                              color: useReps ? Colors.white : Colors.black87,
+                              color: useReps ? Colors.white : hintColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -425,14 +420,14 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: !useReps ? const Color(0xFFA90015) : Colors.transparent,
+                          color: !useReps ? redColor : Colors.transparent,
                           borderRadius: BorderRadius.circular(25),
                         ),
                         child: Center(
                           child: Text(
                             'DURATION',
                             style: TextStyle(
-                              color: !useReps ? Colors.white : Colors.black87,
+                              color: !useReps ? Colors.white : hintColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -448,7 +443,6 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
             _buildInputField('Sets', seriesController),
             const SizedBox(height: 16),
             
-            // Dynamically show reps or duration based on selection
             _buildInputField(
               useReps ? 'Reps' : 'Duration (sec)', 
               useReps ? repsController : durationController
@@ -457,7 +451,7 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
             const SizedBox(height: 24),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFA90015),
+                backgroundColor: redColor,
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20)),
@@ -479,7 +473,7 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
                   });
                 }
               },
-              child: const Text('Confirm', 
+              child: Text('Confirm', 
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ],
@@ -492,17 +486,17 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(fontSize: 16)),
+        Text(label, style: TextStyle(fontSize: 16, color: textColor)),
         SizedBox(
           width: 120,
           child: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 16, color: textColor),
             decoration: InputDecoration(
               filled: true,
-              fillColor: Colors.grey[100],
+              fillColor: backgroundColor,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,

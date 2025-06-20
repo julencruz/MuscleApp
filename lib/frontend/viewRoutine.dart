@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:muscle_app/backend/update_dock.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 class ViewRoutine extends StatefulWidget {
   final Map<String, dynamic> routine;
@@ -50,7 +51,6 @@ class _ViewRoutineState extends State<ViewRoutine> {
     Icons.sports_football,
   ];
 
-
   @override
   void initState() {
     super.initState();
@@ -58,7 +58,6 @@ class _ViewRoutineState extends State<ViewRoutine> {
   }
 
   void _initializeRoutineData() {
-    print(widget.routine);
     _selectedDays = List.generate(7, (_) => false);
     _exercisesByDay = {};
 
@@ -128,18 +127,15 @@ class _ViewRoutineState extends State<ViewRoutine> {
           );
 
           if (exerciseData != null) {
-            // Procesar nivel
             String level = (exerciseData["level"]?.toString() ?? "beginner").toLowerCase();
             int levelValue = levelToValue[level] ?? 2;
             maxLevel = max(maxLevel, levelValue);
 
-            // Procesar músculos
             List<String> primaryMuscles = List<String>.from(exerciseData["primaryMuscles"] ?? []);
             List<String> secondaryMuscles = List<String>.from(exerciseData["secondaryMuscles"] ?? []);
             allMuscles.addAll(primaryMuscles);
             allMuscles.addAll(secondaryMuscles);
 
-            // Calcular tiempo
             int series = (exercise['series'] as num? ?? 0).toInt();
             int reps = (exercise['reps'] as num? ?? 0).toInt();
             int duration = (exercise['duration'] as num? ?? 0).toInt();
@@ -147,7 +143,7 @@ class _ViewRoutineState extends State<ViewRoutine> {
             if (duration > 0) {
               dayTimeInSecs += series * duration;
             } else {
-              dayTimeInSecs += series * reps * 5; // 5 segundos por rep
+              dayTimeInSecs += series * reps * 5;
             }
             
             dayTimeInSecs += (series - 1) * restTime;
@@ -197,33 +193,31 @@ class _ViewRoutineState extends State<ViewRoutine> {
 
   @override
   Widget build(BuildContext context) {
-    
     final routineName = (widget.routine['rName']?.isNotEmpty == true)
         ? widget.routine['rName']
         : 'Unnamed Routine';
     final restTime = widget.routine['restTime']?.toString() ?? '30';
     final days = List<Map<String, dynamic>>.from(widget.routine["days"] ?? []);
     final routineInfoFuture = _getRoutineInfo(days, widget.routine["restTime"]);
+    
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
+        backgroundColor: appBarBackgroundColor,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        shadowColor: Colors.grey.withOpacity(0.1),
-        title: const Text(
+        shadowColor: shadowColor,
+        title: Text(
           'Routine Details',
-          style: TextStyle(
-            color: Colors.black87,
-          ),
+          style: TextStyle(color: textColor),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: textColor),
           onPressed: () {
             Navigator.pop(context);
-            UpdateDock.updateSystemUI(Colors.white);
+            UpdateDock.updateSystemUI(appBarBackgroundColor);
           },
         ),
       ),
@@ -234,11 +228,11 @@ class _ViewRoutineState extends State<ViewRoutine> {
             future: routineInfoFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator(color: Colors.red));
+                return Center(child: CircularProgressIndicator(color: redColor));
               }
 
               if (snapshot.hasError || !snapshot.hasData) {
-                return const _InfoCard(
+                return _InfoCard(
                   title: 'Error loading routine data',
                   content: 'Please try again later',
                 );
@@ -350,9 +344,10 @@ class _RoutineHeader extends StatelessWidget {
           Text(
             name,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
+              color: textColor,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -361,13 +356,13 @@ class _RoutineHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: redColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               level[0].toUpperCase() + level.substring(1),
               style: TextStyle(
-                color: Colors.red[700],
+                color: redColor,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -444,11 +439,11 @@ class _InfoTile extends StatelessWidget {
       width: span ? double.infinity : null,
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: shadowColor,
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -461,13 +456,14 @@ class _InfoTile extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, color: Color(0xFFA90015), size: 20),
+                Icon(icon, color: redColor, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
+                    color: textColor,
                   ),
                 ),
               ],
@@ -476,7 +472,7 @@ class _InfoTile extends StatelessWidget {
             Text(
               value,
               style: TextStyle(
-                color: Colors.grey[700],
+                color: textColor2,
                 fontSize: 13,
               ),
               maxLines: span ? 4 : 2,
@@ -503,24 +499,25 @@ class _WeekdaysSelector extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 4.0, bottom: 12.0),
+        Padding(
+          padding: const EdgeInsets.only(left: 4.0, bottom: 12.0),
           child: Text(
             'Training Days',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              color: textColor,
             ),
           ),
         ),
         Container(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: shadowColor,
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -534,9 +531,9 @@ class _WeekdaysSelector extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: selectedDays[index] ? Color(0xFFA90015) : Colors.white,
+                  color: selectedDays[index] ? redColor : cardColor,
                   border: Border.all(
-                    color: selectedDays[index] ? Color(0xFFA90015) : Colors.grey.shade300,
+                    color: selectedDays[index] ? redColor : dividerColor,
                     width: 2,
                   ),
                 ),
@@ -544,7 +541,7 @@ class _WeekdaysSelector extends StatelessWidget {
                   child: Text(
                     weekdaysShort[index],
                     style: TextStyle(
-                      color: selectedDays[index] ? Colors.white : Colors.black87,
+                      color: selectedDays[index] ? Colors.white : textColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -582,20 +579,21 @@ class _DayExercises extends StatelessWidget {
           padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
           child: Text(
             '$weekDay - $dayName',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              color: textColor,
             ),
           ),
         ),
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardColor,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: shadowColor,
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -604,12 +602,12 @@ class _DayExercises extends StatelessWidget {
           child: Column(
             children: [
               if (exercises.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Text(
                     'No exercises for this day',
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: hintColor,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -660,7 +658,7 @@ class _ExerciseItem extends StatelessWidget {
       case 'intermediate':
         return Colors.amber;
       case 'expert':
-        return Colors.red;
+        return redColor;
       default:
         return Colors.green;
     }
@@ -683,8 +681,6 @@ class _ExerciseItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final level = _getExerciseLevel();
     final imagePath = 'assets/muscle_images/${_getMuscleImage()}.png';
-    
-    // Determinar qué texto mostrar
     final repsText = duration != null 
       ? '${duration}s × $series' 
       : '${reps ?? 0} × $series';
@@ -694,9 +690,9 @@ class _ExerciseItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: Colors.grey[50],
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: dividerColor),
         ),
         child: Row(
           children: [
@@ -704,7 +700,7 @@ class _ExerciseItem extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: _getBorderColor(level),
@@ -717,7 +713,7 @@ class _ExerciseItem extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Icon(
                     Icons.fitness_center,
-                    color: Colors.grey[600],
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -726,21 +722,22 @@ class _ExerciseItem extends StatelessWidget {
             Expanded(
               child: Text(
                 name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w500,
+                  color: textColor,
                 ),
               ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Color(0xFFA90015).withOpacity(0.1),
+                color: redColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 repsText,
                 style: TextStyle(
-                  color: Color(0xFFA90015),
+                  color: redColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -769,9 +766,16 @@ class _InfoCard extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text(title, style: Theme.of(context).textTheme.titleLarge),
+            Text(title, style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            )),
             const SizedBox(height: 8),
-            Text(content, style: Theme.of(context).textTheme.bodyMedium),
+            Text(content, style: TextStyle(
+              fontSize: 14,
+              color: textColor2,
+            )),
           ],
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 import 'create.dart';
 import 'workout.dart';
 import 'library.dart';
@@ -49,7 +50,7 @@ Widget build(BuildContext context) {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: shadowColor,
             blurRadius: 10,
             spreadRadius: 0,
           ),
@@ -58,7 +59,7 @@ Widget build(BuildContext context) {
       child: BottomAppBar(
         height: 75,
         padding: EdgeInsets.zero,
-        color: Colors.white,
+        color: appBarBackgroundColor,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
@@ -83,7 +84,7 @@ Widget build(BuildContext context) {
                     borderRadius: BorderRadius.circular(15),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: shadowColor,
                         blurRadius: 6,
                         offset: const Offset(0, 3),
                       ),
@@ -144,7 +145,7 @@ Widget build(BuildContext context) {
           children: [
             Icon(
               isSelected ? filledIcon : outlinedIcon,
-              color: isSelected ? const Color(0xFFA90015) : Colors.grey.shade700,
+              color: isSelected ? redColor : hintColor,
               size: 26,
             ),
             const SizedBox(height: 4),

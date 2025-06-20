@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:muscle_app/backend/user_service.dart';
 import 'package:muscle_app/frontend/viewMarketplaceRoutine.dart';
 import 'package:muscle_app/backend/update_dock.dart';
+import 'package:muscle_app/theme/app_colors.dart';
 
 String capitalize(String s) {
   if (s.isEmpty) return s;
@@ -90,33 +91,34 @@ class _SearchRoutinePageState extends State<SearchRoutinePage> {
           return name.contains(searchLower) || creatorName.contains(searchLower) || routineId.contains(searchLower) || routine['creatorId'].toString().contains(query);
         }).toList();
       }
-      _loadCreatorNames(); // Actualizar nombres al filtrar
+      _loadCreatorNames();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
-        shadowColor: Colors.grey.withOpacity(0.1),
+        backgroundColor: appBarBackgroundColor,
+        shadowColor: shadowColor,
         centerTitle: true,
         elevation: 0,
         title: Container(
           height: 40,
           decoration: BoxDecoration(
-            color: Colors.grey[50],
+            color: failedColor,
             borderRadius: BorderRadius.circular(12),
           ),
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
               hintText: 'Search by routine or creator...',
+              hintStyle: TextStyle(color: hintColor),
               border: InputBorder.none,
-              prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+              prefixIcon: Icon(Icons.search, color: hintColor),
               contentPadding: const EdgeInsets.symmetric(vertical: 8),
             ),
             onChanged: _filterRoutines,
@@ -124,10 +126,10 @@ class _SearchRoutinePageState extends State<SearchRoutinePage> {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: textColor),
           onPressed: () {
             Navigator.pop(context);
-            UpdateDock.updateSystemUI(Colors.white);
+            UpdateDock.updateSystemUI(appBarBackgroundColor);
           },
         ),
       ),
@@ -139,20 +141,20 @@ class _SearchRoutinePageState extends State<SearchRoutinePage> {
   }
 
   Widget _buildSearchResults() {
-    UpdateDock.updateSystemUI(Colors.grey[50]!);
+    UpdateDock.updateSystemUI(backgroundColor);
     if (_filteredRoutines.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 48, color: Colors.grey[400]),
+            Icon(Icons.search_off, size: 48, color: hintColor),
             const SizedBox(height: 16),
             Text(
               _searchController.text.isEmpty
                   ? 'Search for routines'
                   : 'No matching routines found',
               style: TextStyle(
-                color: Colors.grey[600],
+                color: textColor2,
                 fontSize: 16,
               ),
             ),
@@ -220,11 +222,11 @@ class _SearchResultCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
+              color: shadowColor,
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -251,10 +253,10 @@ class _SearchResultCard extends StatelessWidget {
                   children: [
                     Text(
                       routine['rName'] ?? 'Unnamed Routine',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: Colors.black87,
+                        color: textColor,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -263,7 +265,7 @@ class _SearchResultCard extends StatelessWidget {
                     Text(
                       'By $creatorName',
                       style: TextStyle(
-                        color: Colors.grey[600],
+                        color: textColor2,
                         fontSize: 12,
                       ),
                     ),
@@ -278,12 +280,12 @@ class _SearchResultCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.star, color: Color(0xFFA90015), size: 18),
+                        Icon(Icons.star, color: redColor, size: 18),
                         const SizedBox(width: 4),
                         Text(
                           (routine['averageRating'] ?? 0.0).toStringAsFixed(1),
                           style: TextStyle(
-                            color: Colors.grey[700],
+                            color: textColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -294,13 +296,13 @@ class _SearchResultCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: Color(0xFFA90015).withOpacity(0.1),
+                            color: redColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             routine['type'] ?? '',
-                            style: const TextStyle(
-                              color: Color(0xFFA90015),
+                            style: TextStyle(
+                              color: redColor,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
