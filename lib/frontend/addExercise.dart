@@ -367,7 +367,8 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
   final durationController = TextEditingController(text: '30');
   
   bool useReps = true;
-  
+  String durationUnit = 'sec'; // 'sec' o 'min'
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -443,10 +444,9 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
             _buildInputField('Sets', seriesController),
             const SizedBox(height: 16),
             
-            _buildInputField(
-              useReps ? 'Reps' : 'Duration (sec)', 
-              useReps ? repsController : durationController
-            ),
+            useReps
+              ? _buildInputField('Reps', repsController)
+              : _buildDurationField(),
             
             const SizedBox(height: 24),
             ElevatedButton(
@@ -465,10 +465,14 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
                     'measurementType': 'reps',
                   });
                 } else {
+                  int durationValue = int.tryParse(durationController.text) ?? 30;
+                  if (durationUnit == 'min') {
+                    durationValue *= 60;
+                  }
                   Navigator.pop(context, {
                     ...widget.exercise,
                     'series': int.tryParse(seriesController.text) ?? 4,
-                    'duration': int.tryParse(durationController.text) ?? 30,
+                    'duration': durationValue,
                     'measurementType': 'duration',
                   });
                 }
@@ -503,6 +507,80 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 12),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDurationField() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text('Duration', style: TextStyle(fontSize: 16, color: textColor)),
+        Container(
+          width: 120,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: durationController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, color: textColor, fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    hintText: '30',
+                    hintStyle: TextStyle(
+                      color: hintColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 8,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.only(right: 8),
+                child: DropdownButton<String>(
+                  value: durationUnit,
+                  underline: SizedBox(),
+                  
+                  style: TextStyle(color: hintColor, fontWeight: FontWeight.w600, fontSize: 14),
+                  dropdownColor: backgroundColor,
+                  borderRadius: BorderRadius.circular(12),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'sec',
+                      child: Text('sec', style: TextStyle(color: hintColor)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'min',
+                      child: Text('min', style: TextStyle(color: hintColor)),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        int currentValue = int.tryParse(durationController.text) ?? 0;
+                        if (durationUnit == 'min' && value == 'sec') {
+                          durationController.text = (currentValue * 60).toString();
+                        } else if (durationUnit == 'sec' && value == 'min') {
+                          durationController.text = (currentValue ~/ 60).toString();
+                        }
+                        durationUnit = value;
+                      });
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ],

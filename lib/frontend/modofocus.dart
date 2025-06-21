@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:muscle_app/backend/exercise_loader.dart';
+import 'package:muscle_app/backend/notifs_service.dart';
 import 'package:muscle_app/frontend/home.dart';
 import 'package:muscle_app/frontend/modofocusdescanso.dart';
 import 'package:muscle_app/backend/save_stats.dart';
@@ -684,6 +685,7 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
   }
 
   Widget _buildExerciseCard(Map<String, dynamic> exercise, int totalSeries) {
+    final bool isTimed = exercise.containsKey('duration') && exercise['duration'] != null;
     return Card(
       color: cardColor,
       elevation: 4,
@@ -728,36 +730,103 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                  child: isTimed
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.repeat, color: redColor),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Reps:',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: textColor,
+                          Row(
+                            children: [
+                              Icon(Icons.timer, color: redColor),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Duration:',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: textColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              await showModalBottomSheet(
+                                context: context,
+                                backgroundColor: cardColor,
+                                isScrollControlled: true,
+                                builder: (context) => _TimerSheet(
+                                  duration: exercise['duration'],
+                                  onFinish: () async {
+                                    Navigator.pop(context);
+                                    // Al terminar la serie de duración, muestra el descanso igual que en _mostrarDescanso
+                                    await showModalBottomSheet(
+                                      context: context,
+                                      backgroundColor: cardColor,
+                                      isScrollControlled: true,
+                                      enableDrag: false,
+                                      isDismissible: false,
+                                      builder: (context) => ModoFocusDescansoPage(
+                                        exerciseTitle: exercise['exerciseName'],
+                                        initialTime: widget.routine['restTime'],
+                                        onDescansoCompleto: () {
+                                          Navigator.pop(context);
+                                          setState(() {
+                                            if (currentSeries < totalSeries) {
+                                              currentSeries++;
+                                            } else {
+                                              _navegarSiguienteEjercicio();
+                                            }
+                                          });
+                                        },
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                            icon: Icon(Icons.play_arrow, color: contraryTextColor),
+                            label: Text('${exercise['duration']} secs', style: TextStyle(color: contraryTextColor)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: redColor,
+                              minimumSize: const Size(double.infinity, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.repeat, color: redColor),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Reps:',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: textColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: _repsController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _repsController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ],
             ),
@@ -771,20 +840,21 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: _mostrarDescanso,
-              icon: const Icon(Icons.navigate_next, color: Colors.white,),
-              label: const Text('Continue', style: TextStyle(color: Colors.white),),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: redColor,
-                foregroundColor: contraryTextColor,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                minimumSize: const Size(double.infinity, 56),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            if (!isTimed)
+              ElevatedButton.icon(
+                onPressed: _mostrarDescanso,
+                icon: const Icon(Icons.navigate_next, color: Colors.white,),
+                label: const Text('Continue', style: TextStyle(color: Colors.white),),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: redColor,
+                  foregroundColor: contraryTextColor,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  minimumSize: const Size(double.infinity, 56),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -911,6 +981,82 @@ class _ExerciseImageCarouselState extends State<ExerciseImageCarousel> {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _TimerSheet extends StatefulWidget {
+  final int duration;
+  final VoidCallback onFinish;
+  const _TimerSheet({required this.duration, required this.onFinish});
+
+  @override
+  State<_TimerSheet> createState() => _TimerSheetState();
+}
+
+class _TimerSheetState extends State<_TimerSheet> {
+  late int _remaining;
+  late bool _running;
+
+  @override
+  void initState() {
+    super.initState();
+    _remaining = widget.duration;
+    _running = true;
+    _startTimer();
+  }
+
+  void _startTimer() async {
+    while (_running && _remaining > 0) {
+      await Future.delayed(const Duration(seconds: 1));
+      if (!_running) break;
+      setState(() => _remaining--);
+    }
+    if (_remaining == 0) {
+      // Notificación al terminar la serie de duración
+      await NotifsService.showLocalNotification(
+        id: 100,
+        title: "¡Serie completada!",
+        body: "Para y empieza a descansar.",
+      );
+      widget.onFinish();
+    }
+  }
+
+  @override
+  void dispose() {
+    _running = false;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.timer, size: 48, color: redColor),
+          const SizedBox(height: 16),
+          Text(
+            '$_remaining s',
+            style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: redColor),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: failedColor,
+              foregroundColor: contraryTextColor,
+              minimumSize: const Size(double.infinity, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Cancel'),
+          ),
+        ],
       ),
     );
   }

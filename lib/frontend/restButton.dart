@@ -71,10 +71,13 @@ class _RestButtonState extends State<RestButton> {
 
 class RestTimerModal extends StatefulWidget {
   final int initialTime;
+  final String? exerciseName;
+  final String? skipLabel;
 
   const RestTimerModal({
-    super.key,
     required this.initialTime,
+    this.exerciseName,
+    this.skipLabel,
   });
 
   @override
@@ -191,12 +194,13 @@ class _RestTimerModalState extends State<RestTimerModal>
                 ),
                 const SizedBox(height: 40),
                 Text(
-                  "Rest Time",
+                  widget.exerciseName ?? "Rest",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: redColor,
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 40),
                 Stack(
@@ -244,8 +248,8 @@ class _RestTimerModalState extends State<RestTimerModal>
                       onPressed: () {
                         AchievementManager().unlockAchievement("skip_rest_time");
                         _controller.stop();
-                        NotifsService.cancelScheduledNotification(0); // Cancela la notificación
-                        Navigator.of(context).pop(); // Cierra el modal
+                        NotifsService.cancelScheduledNotification(0);
+                        Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: redColor,
@@ -255,9 +259,9 @@ class _RestTimerModalState extends State<RestTimerModal>
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       ),
-                      child: const Text(
-                        "Skip rest",
-                        style: TextStyle(fontSize: 16),
+                      child: Text(
+                        widget.skipLabel ?? "Skip",
+                        style: const TextStyle(fontSize: 16),
                       ),
                     ),
                     const SizedBox(width: 20),

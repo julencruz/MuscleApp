@@ -536,7 +536,33 @@ static Future<void> updateMuscleVolumes(
     }
     final userDocRef = FirebaseFirestore.instance.collection('calendar').doc(user.uid);
     final userDoc = await userDocRef.get();
-    return userDoc['streak'] ?? 0;
+
+    final List<dynamic> rawDaysRegistered = userDoc['daysRegistered'] ?? [];
+    final List<DateTime> daysRegistered = rawDaysRegistered
+        .map((d) => (d as Timestamp).toDate())
+        .toList()
+        ..sort((a, b) => b.compareTo(a)); // Orden descendente
+
+    DateTime today = DateTime.now();
+    int streak = 0;
+
+    // Calcular streak real (días consecutivos hasta hoy)
+    for (int i = 0; i < daysRegistered.length; i++) {
+      final expectedDay = today.subtract(Duration(days: i));
+      final registeredDay = daysRegistered[i];
+      if (_isSameDay(registeredDay, expectedDay)) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    // Si el streak guardado es diferente al real, actualizarlo en Firestore
+    if ((userDoc['streak'] ?? 0) != streak) {
+      await userDocRef.update({'streak': streak});
+    }
+
+    return streak;
   }
 
 }

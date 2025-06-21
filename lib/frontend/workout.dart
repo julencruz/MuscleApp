@@ -1797,9 +1797,11 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                         ),
                       );
                     },
-                    child: Icon(Icons.info_outline_rounded, 
-                      color: redColor, 
-                      size: 22),
+                    child: Icon(
+                      Icons.info_outline_rounded,
+                      color: redColor,
+                      size: 22,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   // Nombre del ejercicio
@@ -1825,7 +1827,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                isTimed ? '$series x ${duration}s' : '$series x ${reps}',
+                isTimed ? '$series x ${duration}s' : '$series x $reps',
                 style: TextStyle(
                   color: redColor,
                   fontWeight: FontWeight.w800,
@@ -1868,26 +1870,14 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                   ),
                 ),
               ),
-              if (!isTimed) SizedBox(
+              SizedBox(
                 width: 60,
                 child: Center(
                   child: Text(
-                    "Reps",
+                    isTimed ? "Secs" : "Reps",
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       color: hintColor,
-                    ),
-                  ),
-                ),
-              ),
-              if (isTimed) SizedBox(
-                width: 60,
-                child: Center(
-                  child: Text(
-                    "Secs",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: Colors.grey[700],
                     ),
                   ),
                 ),
@@ -1931,9 +1921,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                         hintText: 'kg',
                         hintStyle: TextStyle(color: hintColor),
                         filled: true,
-                        fillColor: seriesDone[exerciseIndex][index]
-                            ? shadowColor
-                            : shadowColor,
+                        fillColor: shadowColor,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
@@ -1968,94 +1956,144 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                   ),
 
                   // Campo de reps o segundos (según el tipo de ejercicio)
-                  if (!isTimed) SizedBox(
+                  SizedBox(
                     width: 60,
-                    child: TextField(
-                      controller: repsControllers[exerciseIndex][index],
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        hintText: 'reps',
-                        hintStyle: TextStyle(color: hintColor),
-                        filled: true,
-                        fillColor: seriesDone[exerciseIndex][index]
-                            ? shadowColor
-                            : shadowColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: redColor,
-                            width: 1.5,
+                    child: isTimed
+                        ? GestureDetector(
+                            onTap: () async {
+                              int initialSeconds = int.tryParse(
+                                      repsControllers[exerciseIndex][index].text) ??
+                                  duration;
+                              await showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (_) => RestTimerModal(
+                                  initialTime: initialSeconds,
+                                  exerciseName: exercise,
+                                  skipLabel: 'Exit',
+                                ),
+                              );
+                            },
+                            onLongPress: () {
+                              final controller = TextEditingController(
+                                  text: repsControllers[exerciseIndex][index].text);
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: cardColor,
+                                  title: Text('Edit seconds',
+                                      style: TextStyle(color: textColor2)),
+                                  content: TextField(
+                                    controller: controller,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      hintText: 'Seconds',
+                                      hintStyle: TextStyle(color: hintColor),
+                                    ),
+                                    style: TextStyle(color: textColor2),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      child: Text('Cancel',
+                                          style: TextStyle(color: hintColor)),
+                                      onPressed: () => Navigator.pop(context),
+                                    ),
+                                    ElevatedButton(
+                                      child: Text('Save'),
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: redColor,
+                                          foregroundColor: Colors.white),
+                                      onPressed: () {
+                                        setState(() {
+                                          repsControllers[exerciseIndex][index]
+                                              .text = controller.text;
+                                          currentReps[exerciseIndex][index] =
+                                              controller.text;
+                                          _saveWorkoutProgress();
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            child: AbsorbPointer(
+                              child: TextField(
+                                controller: repsControllers[exerciseIndex][index],
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  hintText: 'secs',
+                                  hintStyle: TextStyle(color: hintColor),
+                                  filled: true,
+                                  fillColor: shadowColor,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: redColor,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 12,
+                                  ),
+                                ),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: seriesDone[exerciseIndex][index]
+                                      ? hintColor
+                                      : textColor2,
+                                ),
+                                enabled: false,
+                              ),
+                            ),
+                          )
+                        : TextField(
+                            controller: repsControllers[exerciseIndex][index],
+                            textAlign: TextAlign.center,
+                            decoration: InputDecoration(
+                              hintText: 'reps',
+                              hintStyle: TextStyle(color: hintColor),
+                              filled: true,
+                              fillColor: shadowColor,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: redColor,
+                                  width: 1.5,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 12,
+                              ),
+                            ),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: seriesDone[exerciseIndex][index]
+                                  ? hintColor
+                                  : textColor2,
+                            ),
+                            keyboardType: TextInputType.number,
+                            onChanged: (newValue) {
+                              setState(() {
+                                currentReps[exerciseIndex][index] = newValue;
+                                _saveWorkoutProgress();
+                              });
+                            },
                           ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 12,
-                        ),
-                      ),
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: seriesDone[exerciseIndex][index]
-                            ? hintColor
-                            : textColor2,
-                      ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (newValue) {
-                        setState(() {
-                          currentReps[exerciseIndex][index] = newValue;
-                          _saveWorkoutProgress();
-                        });
-                      },
-                    ),
-                  ),
-
-                  if (isTimed) SizedBox(
-                    width: 60,
-                    child: TextField(
-                      controller: repsControllers[exerciseIndex][index],
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration(
-                        hintText: 'secs',
-                        hintStyle: TextStyle(color: hintColor),
-                        filled: true,
-                        fillColor: seriesDone[exerciseIndex][index]
-                            ? shadowColor
-                            : shadowColor,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: redColor,
-                            width: 1.5,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 12,
-                        ),
-                      ),
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: seriesDone[exerciseIndex][index]
-                            ? hintColor
-                            : textColor2,
-                      ),
-                      keyboardType: TextInputType.number,
-                      onChanged: (newValue) {
-                        setState(() {
-                          currentReps[exerciseIndex][index] = newValue;
-                          _saveWorkoutProgress();
-                        });
-                      },
-                    ),
                   ),
 
                   // Checkbox de serie completada
@@ -2069,7 +2107,8 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                           if (value == true &&
                               index == visibleSeries - 1 &&
                               visibleSeries < seriesDone[exerciseIndex].length) {
-                            visibleSeries++;
+                            // Esta lógica necesita ser actualizada en el setState padre
+                            // para que visibleSeries se recalcule correctamente
                           }
                           _saveWorkoutProgress();
                         });
@@ -2092,24 +2131,19 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
         ),
 
         // Mensaje de ejercicio completado
-        if (completedSeries == seriesDone[exerciseIndex].length)
+        if (seriesDone[exerciseIndex].every((done) => done))
           Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.check_circle_outline_rounded, 
-                  color: Color(0xFF00C853), 
-                  size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  "Exercise done!",
-                  style: TextStyle(
-                    color: Color(0xFF00C853),
-                    fontWeight: FontWeight.w800,
-                  ),
+            padding: const EdgeInsets.only(top: 18.0),
+            child: Center(
+              child: Text(
+                "Exercise completed!",
+                style: TextStyle(
+                  color: Colors.green[600],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  letterSpacing: 0.5,
                 ),
-              ],
+              ),
             ),
           ),
       ],
@@ -2204,13 +2238,13 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
       currentReps.add(
         List<String>.filled(
           exercise['series'],
-          exercise['reps']?.toString() ?? '0',
+          (exercise['duration'] ?? exercise['reps'] ?? 0).toString(),
         ),
       );
     } else {
       currentReps[exerciseIndex] = List<String>.filled(
         exercise['series'],
-        exercise['reps']?.toString() ?? '0',
+        (exercise['duration'] ?? exercise['reps'] ?? 0).toString(),
       );
     }
 

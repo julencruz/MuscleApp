@@ -21,6 +21,7 @@ class _CreateScreenState extends State<CreateScreen> {
   
   final List<String> _weekdaysShort = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   final List<String> _weekdaysFull = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  String _restTimeUnit = 'sec';
   
   List<Map<String, dynamic>> _recentExercises = [];
   final List<bool> _selectedDays = [false, false, false, false, false, false, false];
@@ -132,6 +133,12 @@ class _CreateScreenState extends State<CreateScreen> {
   }
 
   void _saveRoutine() {
+    int restTimeValue = int.tryParse(_restTimeController.text) ?? 0;
+    if (_restTimeUnit == 'min') {
+      restTimeValue *= 60;
+    }
+    _restTimeController.text = restTimeValue.toString();
+
     // Filtrar solo los días seleccionados para guardar
     final exercisesToSave = Map.fromEntries(
       _allExercisesByDay.entries.where((entry) => _selectedDays[entry.key])
@@ -261,10 +268,14 @@ class _CreateScreenState extends State<CreateScreen> {
                         ),
                         const SizedBox(width: 12),
                         Container(
-                          width: 100,
+                          width: 120,
                           decoration: BoxDecoration(
-                            color: failedColor,
+                            color: backgroundColor,
                             borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: dividerColor,
+                              width: 1.5,
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -296,14 +307,40 @@ class _CreateScreenState extends State<CreateScreen> {
                                 ),
                               ),
                               Container(
-                                padding: const EdgeInsets.only(right: 12),
-                                child: Text(
-                                  'sec',
+                                padding: const EdgeInsets.only(right: 8),
+                                child: DropdownButton<String>(
+                                  value: _restTimeUnit,
+                                  underline: SizedBox(),
                                   style: TextStyle(
                                     color: hintColor,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
                                   ),
+                                  dropdownColor: backgroundColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                  items: [
+                                    DropdownMenuItem(
+                                      value: 'sec',
+                                      child: Text('sec', style: TextStyle(color: hintColor)),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'min',
+                                      child: Text('min', style: TextStyle(color: hintColor)),
+                                    ),
+                                  ],
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      setState(() {
+                                        int currentValue = int.tryParse(_restTimeController.text) ?? 0;
+                                        if (_restTimeUnit == 'min' && value == 'sec') {
+                                          _restTimeController.text = (currentValue * 60).toString();
+                                        } else if (_restTimeUnit == 'sec' && value == 'min') {
+                                          _restTimeController.text = (currentValue ~/ 60).toString();
+                                        }
+                                        _restTimeUnit = value;
+                                      });
+                                    }
+                                  },
                                 ),
                               ),
                             ],

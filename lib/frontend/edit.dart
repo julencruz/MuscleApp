@@ -22,6 +22,7 @@ class _EditScreenState extends State<EditScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _restTimeController = TextEditingController();
   String _routineID = "";
+  String _restTimeUnit = 'sec';
 
   final List<String> _weekdaysShort = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   final List<String> _weekdaysFull = [
@@ -47,6 +48,14 @@ class _EditScreenState extends State<EditScreen> {
     _routineID = widget.routine['rID'] ?? "Routine ID not found";
     _nameController.text = widget.routine['rName'];
     _restTimeController.text = widget.routine['restTime'].toString();
+
+    int restTime = int.tryParse(_restTimeController.text) ?? 0;
+    if (restTime % 60 == 0 && restTime != 0) {
+      _restTimeController.text = (restTime ~/ 60).toString();
+      _restTimeUnit = 'min';
+    } else {
+      _restTimeUnit = 'sec';
+    }
 
     widget.routine['days'].forEach((day) {
       int dayIndex = _weekdaysFull.indexOf(day['weekDay']);
@@ -153,6 +162,12 @@ class _EditScreenState extends State<EditScreen> {
 
   void _saveRoutine() async {
     try {
+      int restTimeValue = int.tryParse(_restTimeController.text) ?? 0;
+      if (_restTimeUnit == 'min') {
+        restTimeValue *= 60;
+      }
+      _restTimeController.text = restTimeValue.toString();
+
       final exercisesToSave = Map.fromEntries(
         _allExercisesByDay.entries.where((entry) => _selectedDays[entry.key])
       );
@@ -241,6 +256,19 @@ class _EditScreenState extends State<EditScreen> {
             RoutineTitleAndRestTime(
               nameController: _nameController,
               restTimeController: _restTimeController,
+              restTimeUnit: _restTimeUnit,
+                onRestTimeUnitChanged: (value) {
+                if (value == null) return;
+                setState(() {
+                  int currentValue = int.tryParse(_restTimeController.text) ?? 0;
+                  if (_restTimeUnit == 'min' && value == 'sec') {
+                    _restTimeController.text = (currentValue * 60).toString();
+                  } else if (_restTimeUnit == 'sec' && value == 'min') {
+                    _restTimeController.text = (currentValue ~/ 60).toString();
+                  }
+                  _restTimeUnit = value;
+                });
+              },
             ),
             const SizedBox(height: 24),
             WeekdaysSelector(
@@ -276,11 +304,15 @@ class _EditScreenState extends State<EditScreen> {
 class RoutineTitleAndRestTime extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController restTimeController;
+  final String restTimeUnit;
+  final ValueChanged<String?> onRestTimeUnitChanged;
 
   const RoutineTitleAndRestTime({
     Key? key,
     required this.nameController,
     required this.restTimeController,
+    required this.restTimeUnit,
+    required this.onRestTimeUnitChanged,
   }) : super(key: key);
 
   @override
@@ -341,7 +373,7 @@ class RoutineTitleAndRestTime extends StatelessWidget {
               Text('Rest Time', style: TextStyle(fontWeight: FontWeight.bold, color: hintColor)),
               const SizedBox(width: 12),
               Container(
-                width: 100,
+                width: 120,
                 decoration: BoxDecoration(
                   color: failedColor,
                   borderRadius: BorderRadius.circular(12),
@@ -362,8 +394,29 @@ class RoutineTitleAndRestTime extends StatelessWidget {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: Text('sec', style: TextStyle(fontWeight: FontWeight.w600, color: hintColor)),
+                      padding: const EdgeInsets.only(right: 8),
+                      child: DropdownButton<String>(
+                        value: restTimeUnit,
+                        underline: SizedBox(),
+                        style: TextStyle(
+                          color: hintColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                        dropdownColor: failedColor,
+                        borderRadius: BorderRadius.circular(12),
+                        items: [
+                          DropdownMenuItem(
+                            value: 'sec',
+                            child: Text('sec', style: TextStyle(color: hintColor)),
+                          ),
+                          DropdownMenuItem(
+                            value: 'min',
+                            child: Text('min', style: TextStyle(color: hintColor)),
+                          ),
+                        ],
+                        onChanged: onRestTimeUnitChanged,
+                      ),
                     ),
                   ],
                 ),
@@ -649,8 +702,8 @@ class ExerciseItem extends StatelessWidget {
       builder: (context) => RepsSetsDialog(
         exercise: {
           'name': name,
-          'reps': reps,
-          'duration': duration,
+          'reps': reps is int ? reps : null,
+          'duration': duration is int ? duration : null,
           'series': series,
         },
       ),
@@ -672,24 +725,18 @@ class RepsSetsDialog extends StatefulWidget {
 }
 
 class _RepsSetsDialogState extends State<RepsSetsDialog> {
-  late TextEditingController seriesController;
-  late TextEditingController repsController;
-  late TextEditingController durationController;
-  late bool useReps;
+  final seriesController = TextEditingController(text: '4');
+  final repsController = TextEditingController(text: '12');
+  final durationController = TextEditingController(text: '30');
   
-  @override
-  void initState() {
-    super.initState();
-    useReps = widget.exercise['reps'] != null;
-    seriesController = TextEditingController(text: widget.exercise['series']?.toString() ?? '3');
-    repsController = TextEditingController(text: widget.exercise['reps']?.toString() ?? '12');
-    durationController = TextEditingController(text: widget.exercise['duration']?.toString() ?? '30');
-  }
+  bool useReps = true;
+  String durationUnit = 'sec'; // 'sec' o 'min'
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: cardColor,
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -702,9 +749,10 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
                   color: textColor)),
             const SizedBox(height: 20),
             
+            // Mode selector
             Container(
               decoration: BoxDecoration(
-                color: failedColor,
+                color: backgroundColor,
                 borderRadius: BorderRadius.circular(25),
               ),
               child: Row(
@@ -722,7 +770,7 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
                           child: Text(
                             'REPS',
                             style: TextStyle(
-                              color: useReps ? contraryTextColor : textColor,
+                              color: useReps ? Colors.white : hintColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -743,7 +791,7 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
                           child: Text(
                             'DURATION',
                             style: TextStyle(
-                              color: !useReps ? contraryTextColor : textColor,
+                              color: !useReps ? Colors.white : hintColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -759,10 +807,9 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
             _buildInputField('Sets', seriesController),
             const SizedBox(height: 16),
             
-            _buildInputField(
-              useReps ? 'Reps' : 'Duration (sec)', 
-              useReps ? repsController : durationController
-            ),
+            useReps
+              ? _buildInputField('Reps', repsController)
+              : _buildDurationField(),
             
             const SizedBox(height: 24),
             ElevatedButton(
@@ -773,14 +820,28 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
                   borderRadius: BorderRadius.circular(20)),
               ),
               onPressed: () {
-                Navigator.pop(context, {
-                  'series': int.tryParse(seriesController.text) ?? 3,
-                  'reps': useReps ? int.tryParse(repsController.text) : null,
-                  'duration': !useReps ? int.tryParse(durationController.text) : null,
-                });
+                if (useReps) {
+                  Navigator.pop(context, {
+                    ...widget.exercise,
+                    'series': int.tryParse(seriesController.text) ?? 4,
+                    'reps': int.tryParse(repsController.text) ?? 12,
+                    'measurementType': 'reps',
+                  });
+                } else {
+                  int durationValue = int.tryParse(durationController.text) ?? 30;
+                  if (durationUnit == 'min') {
+                    durationValue *= 60;
+                  }
+                  Navigator.pop(context, {
+                    ...widget.exercise,
+                    'series': int.tryParse(seriesController.text) ?? 4,
+                    'duration': durationValue,
+                    'measurementType': 'duration',
+                  });
+                }
               },
               child: Text('Confirm', 
-                  style: TextStyle(fontSize: 16, color: contraryTextColor)),
+                  style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
           ],
         ),
@@ -813,5 +874,87 @@ class _RepsSetsDialogState extends State<RepsSetsDialog> {
         ),
       ],
     );
+  }
+
+  Widget _buildDurationField() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text('Duration', style: TextStyle(fontSize: 16, color: textColor)),
+        Container(
+          width: 120,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: durationController,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, color: textColor, fontWeight: FontWeight.bold),
+                  decoration: InputDecoration(
+                    hintText: '30',
+                    hintStyle: TextStyle(
+                      color: hintColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 8,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.only(right: 8),
+                child: DropdownButton<String>(
+                  value: durationUnit,
+                  underline: SizedBox(),
+                  
+                  style: TextStyle(color: hintColor, fontWeight: FontWeight.w600, fontSize: 14),
+                  dropdownColor: backgroundColor,
+                  borderRadius: BorderRadius.circular(12),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'sec',
+                      child: Text('sec', style: TextStyle(color: hintColor)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'min',
+                      child: Text('min', style: TextStyle(color: hintColor)),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        int currentValue = int.tryParse(durationController.text) ?? 0;
+                        if (durationUnit == 'min' && value == 'sec') {
+                          durationController.text = (currentValue * 60).toString();
+                        } else if (durationUnit == 'sec' && value == 'min') {
+                          durationController.text = (currentValue ~/ 60).toString();
+                        }
+                        durationUnit = value;
+                      });
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+  
+  @override
+  void dispose() {
+    seriesController.dispose();
+    repsController.dispose();
+    durationController.dispose();
+    super.dispose();
   }
 }

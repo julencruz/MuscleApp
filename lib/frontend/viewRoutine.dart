@@ -95,101 +95,179 @@ class _ViewRoutineState extends State<ViewRoutine> {
   }
 
   Future<Map<String, dynamic>> _getRoutineInfo(List<Map<String, dynamic>> days, int restTime, {int restBetweenExercises = 120}) async {
-    try {
-      final String data = await rootBundle.loadString('assets/exercises.json');
-      final List<dynamic> allExercises = json.decode(data);
+  try {
+    final String data = await rootBundle.loadString('assets/exercises.json');
+    final List<dynamic> allExercises = json.decode(data);
 
-      Map<String, int> levelToValue = {
-        "beginner": 1,
-        "intermediate": 2,
-        "expert": 3,
-      };
+    Map<String, int> levelToValue = {
+      "beginner": 1,
+      "intermediate": 2,
+      "expert": 3,
+    };
 
-      int maxLevel = 1;
-      Set<String> allMuscles = {};
-      int totalTimeInSecs = 0;
-      int trainingDays = 0;
+    // Tiempos base por tipo de ejercicio (en segundos)
+    Map<String, int> exerciseTypeBaseTime = {
+      "strength": 4,      // 4 segundos por rep para ejercicios de fuerza
+      "cardio": 1,        // Ya se maneja por duración
+      "flexibility": 6,   // 6 segundos por rep para ejercicios de flexibilidad
+      "balance": 8,       // 8 segundos por rep para ejercicios de equilibrio
+      "plyometric": 3,    // 3 segundos por rep para ejercicios pliométricos
+      "isometric": 1,     // Ya se maneja por duración
+      "compound": 5,      // 5 segundos por rep para ejercicios compuestos
+      "isolation": 3,     // 3 segundos por rep para ejercicios de aislamiento
+    };
 
-      for (var day in days) {
-        final dayExercises = day['exercises'] as List? ?? [];
-        if (dayExercises.isEmpty) continue;
+    // Factor de ajuste por nivel de dificultad
+    Map<String, double> levelTimeFactor = {
+      "beginner": 1.5,      // Los principiantes tardan 20% más
+      "intermediate": 1.2,   // Tiempo base
+      "expert": 1.0,        // Los expertos son 10% más rápidos
+    };
 
-        trainingDays++;
-        int dayTimeInSecs = 0;
+    // Tiempo adicional por transición entre ejercicios según el tipo
+    Map<String, int> transitionTime = {
+      "same_muscle_group": 45,     // Menos tiempo si trabajan el mismo grupo muscular
+      "different_muscle_group": 90, // Más tiempo si cambian de grupo muscular
+      "equipment_change": 120,      // Tiempo adicional si cambia el equipamiento
+    };
 
-        for (var exercise in dayExercises) {
-          final exerciseId = exercise['exerciseID']?.toString();
-          if (exerciseId == null) continue;
+    int maxLevel = 1;
+    Set<String> allMuscles = {};
+    int totalTimeInSecs = 0;
+    int trainingDays = 0;
 
-          final exerciseData = allExercises.firstWhere(
-            (ex) => ex["id"]?.toString() == exerciseId,
-            orElse: () => null,
-          );
+    for (var day in days) {
+      final dayExercises = day['exercises'] as List? ?? [];
+      if (dayExercises.isEmpty) continue;
 
-          if (exerciseData != null) {
-            String level = (exerciseData["level"]?.toString() ?? "beginner").toLowerCase();
-            int levelValue = levelToValue[level] ?? 2;
-            maxLevel = max(maxLevel, levelValue);
+      trainingDays++;
+      int dayTimeInSecs = 0;
+      String? previousMuscleGroup;
+      String? previousEquipment;
 
-            List<String> primaryMuscles = List<String>.from(exerciseData["primaryMuscles"] ?? []);
-            List<String> secondaryMuscles = List<String>.from(exerciseData["secondaryMuscles"] ?? []);
-            allMuscles.addAll(primaryMuscles);
-            allMuscles.addAll(secondaryMuscles);
+      // Tiempo de calentamiento (5 minutos)
+      dayTimeInSecs += 300;
 
-            int series = (exercise['series'] as num? ?? 0).toInt();
-            int reps = (exercise['reps'] as num? ?? 0).toInt();
-            int duration = (exercise['duration'] as num? ?? 0).toInt();
+      for (int i = 0; i < dayExercises.length; i++) {
+        final exercise = dayExercises[i];
+        final exerciseId = exercise['exerciseID']?.toString();
+        if (exerciseId == null) continue;
 
-            if (duration > 0) {
-              dayTimeInSecs += series * duration;
-            } else {
-              dayTimeInSecs += series * reps * 5;
-            }
-            
+        final exerciseData = allExercises.firstWhere(
+          (ex) => ex["id"]?.toString() == exerciseId,
+          orElse: () => null,
+        );
+
+        if (exerciseData != null) {
+          String level = (exerciseData["level"]?.toString() ?? "beginner").toLowerCase();
+          int levelValue = levelToValue[level] ?? 2;
+          maxLevel = max(maxLevel, levelValue);
+
+          List<String> primaryMuscles = List<String>.from(exerciseData["primaryMuscles"] ?? []);
+          List<String> secondaryMuscles = List<String>.from(exerciseData["secondaryMuscles"] ?? []);
+          allMuscles.addAll(primaryMuscles);
+          allMuscles.addAll(secondaryMuscles);
+
+          int series = (exercise['series'] as num? ?? 0).toInt();
+          int reps = (exercise['reps'] as num? ?? 0).toInt();
+          int duration = (exercise['duration'] as num? ?? 0).toInt();
+
+          // Determinar tipo de ejercicio y tiempo base
+          String exerciseType = exerciseData["type"]?.toString().toLowerCase() ?? "strength";
+          String equipment = exerciseData["equipment"]?.toString().toLowerCase() ?? "none";
+          
+          int baseTimePerRep = exerciseTypeBaseTime[exerciseType] ?? 4;
+          double levelFactor = levelTimeFactor[level] ?? 1.0;
+
+          int exerciseTime = 0;
+
+          if (duration > 0) {
+            // Ejercicios basados en tiempo (isométricos, cardio)
+            exerciseTime = (series * duration * levelFactor).round();
+          } else {
+            // Ejercicios basados en repeticiones
+            int adjustedTimePerRep = (baseTimePerRep * levelFactor).round();
+            exerciseTime = series * reps * adjustedTimePerRep;
+          }
+
+          dayTimeInSecs += exerciseTime;
+
+          // Descanso entre series (si hay más de una serie)
+          if (series > 1) {
             dayTimeInSecs += (series - 1) * restTime;
           }
-        }
 
-        if (dayExercises.length > 1) {
-          dayTimeInSecs += (dayExercises.length - 1) * restBetweenExercises;
-        }
+          // Tiempo de transición entre ejercicios
+          if (i > 0) {
+            String currentMuscleGroup = primaryMuscles.isNotEmpty ? primaryMuscles.first : "";
+            
+            int transitionTimeToAdd = restBetweenExercises;
+            
+            // Ajustar tiempo de transición según el contexto
+            if (previousMuscleGroup == currentMuscleGroup) {
+              transitionTimeToAdd = transitionTime["same_muscle_group"]!;
+            } else if (previousEquipment != equipment) {
+              transitionTimeToAdd = transitionTime["equipment_change"]!;
+            } else {
+              transitionTimeToAdd = transitionTime["different_muscle_group"]!;
+            }
 
-        totalTimeInSecs += dayTimeInSecs;
+            dayTimeInSecs += transitionTimeToAdd;
+            
+            previousMuscleGroup = currentMuscleGroup;
+            previousEquipment = equipment;
+          } else {
+            // Primer ejercicio del día
+            previousMuscleGroup = primaryMuscles.isNotEmpty ? primaryMuscles.first : "";
+            previousEquipment = equipment;
+          }
+
+          // Tiempo adicional para ejercicios complejos o técnicos
+          if (exerciseType == "compound" || level == "expert") {
+            dayTimeInSecs += 30; // 30 segundos adicionales para preparación/concentración
+          }
+        }
       }
 
-      String formatDuration(int totalSeconds) {
-        if (totalSeconds < 60) return "1 min";
+      // Tiempo de enfriamiento/estiramiento (5 minutos)
+      dayTimeInSecs += 300;
 
-        int hours = totalSeconds ~/ 3600;
-        int remainingSecs = totalSeconds % 3600;
-        int minutes = (remainingSecs / 60).ceil();
-
-        if (minutes == 60) {
-          hours += 1;
-          minutes = 0;
-        }
-
-        return hours > 0 ? "$hours h $minutes min" : "$minutes min";
-      }
-
-      return {
-        'totalTime': formatDuration(totalTimeInSecs),
-        'averageTime': trainingDays > 0 ? formatDuration((totalTimeInSecs / trainingDays).ceil()) : "0 min",
-        'allMuscles': allMuscles.toList()..sort(),
-        'routineLevel': levelToValue.entries.firstWhere((e) => e.value == maxLevel, orElse: () => levelToValue.entries.first).key,
-        'allExercises': allExercises,
-      };
-    } catch (e) {
-      debugPrint("Error loading routine info: $e");
-      return {
-        'totalTime': '0 min',
-        'averageTime': '0 min',
-        'allMuscles': [],
-        'routineLevel': 'beginner',
-        'allExercises': [],
-      };
+      totalTimeInSecs += dayTimeInSecs;
     }
+
+    String formatDuration(int totalSeconds) {
+      if (totalSeconds < 60) return "1 min";
+
+      int hours = totalSeconds ~/ 3600;
+      int remainingSecs = totalSeconds % 3600;
+      int minutes = (remainingSecs / 60).ceil();
+
+      if (minutes == 60) {
+        hours += 1;
+        minutes = 0;
+      }
+
+      return hours > 0 ? "$hours h $minutes min" : "$minutes min";
+    }
+
+    return {
+      'totalTime': formatDuration(totalTimeInSecs),
+      'averageTime': trainingDays > 0 ? formatDuration((totalTimeInSecs / trainingDays).ceil()) : "0 min",
+      'allMuscles': allMuscles.toList()..sort(),
+      'routineLevel': levelToValue.entries.firstWhere((e) => e.value == maxLevel, orElse: () => levelToValue.entries.first).key,
+      'allExercises': allExercises,
+    };
+  } catch (e) {
+    debugPrint("Error loading routine info: $e");
+    return {
+      'totalTime': '0 min',
+      'averageTime': '0 min',
+      'allMuscles': [],
+      'routineLevel': 'beginner',
+      'allExercises': [],
+    };
   }
+}
 
   @override
   Widget build(BuildContext context) {

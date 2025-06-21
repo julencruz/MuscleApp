@@ -47,10 +47,11 @@ class ShuffleExercise {
       ...exercise, // Mantener todas las propiedades originales
       'exerciseID': selectedExercise['id'],
       'exerciseName': selectedExercise['name'],
-      // Mantener las series, reps y peso del ejercicio original
+      // Mantener las series, reps, peso y duración del ejercicio original
       'series': exercise['series'],
       'reps': exercise['reps'],
       'lastWeight': exercise['lastWeight'],
+      'duration': exercise['duration'], // <-- Añade esta línea
     };
     
   } catch (e) {

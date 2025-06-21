@@ -584,31 +584,25 @@ class __RoutineCardState extends State<_RoutineCard> {
       if (response) {
         AchievementManager().unlockAchievement("share_routine");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Routine published successfully', style: TextStyle(color: contraryTextColor))),
+          SnackBar(content: Text('Routine published successfully', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to publish routine', style: TextStyle(color: contraryTextColor))),
+          SnackBar(content: Text('Failed to publish routine', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor),
         );
       }
     } catch (e) {
       if (e.toString().contains('El creador de la rutina no coincide')) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("You can't publish a routine to the marketplace if you are not the creator!", style: TextStyle(color: contraryTextColor)),
-          ),
+          SnackBar(content: Text('You can\'t publish a routine if you\'re not its creator!', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor)
         );
       } else if (e.toString().contains('La rutina no tiene nombre')) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("You can't publish a routine without a name!", style: TextStyle(color: contraryTextColor)),
-          ),
+          SnackBar(content: Text('You can\'t publish a routine without a name!', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor)
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to publish routine', style: TextStyle(color: contraryTextColor)),
-          ),
+          SnackBar(content: Text('Failed to publish routine', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor),
         );
       }
     }
