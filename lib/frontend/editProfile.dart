@@ -116,12 +116,12 @@ class _EditProfileDrawerState extends State<EditProfileDrawer> {
         unit: _unit,
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Changes saved successfully')),
+        SnackBar(content: Text('Changes saved succesfully', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor),
       );
       Navigator.of(context).pop();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving changes: $e')),
+        SnackBar(content: Text('Error saving changes', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor),
       );
     }
   }
@@ -451,7 +451,7 @@ class _EditProfileDrawerState extends State<EditProfileDrawer> {
         shadowColor: backgroundColor.withOpacity(0.2),
       ),
       child: const Text('Save Changes',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
     );
   }
 

@@ -14,6 +14,7 @@ late Color textColor2; // Para texto secundario
 late Color shadowColor;
 late Color contraryTextColor; // Para texto en fondos oscuros
 late Color appBarBackgroundColor;
+late Color snackBarBackgroundColor;
 
 void setLightThemeColors() {
   redColor = Color(0xFFA90015);
@@ -28,6 +29,7 @@ void setLightThemeColors() {
   failedColor = Colors.grey[200]!; // Para elementos deshabilitados
   dividerColor = Colors.grey[300]!;
   disabledColor = Colors.grey[200]!;
+  snackBarBackgroundColor = Color(0xFF232323);
 }
 
 void setDarkThemeColors() {
@@ -44,4 +46,5 @@ void setDarkThemeColors() {
   failedColor = Colors.grey[800]!; // Para elementos deshabilitados
   accentColor = Color(0xFFBB86FC);  // Un morado/lila para acentos secundarios
   disabledColor = Colors.grey[800]!;
+  snackBarBackgroundColor = Colors.white;
 }

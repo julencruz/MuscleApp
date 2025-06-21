@@ -86,7 +86,7 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
     
     if (weight.isEmpty || reps.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter weight and reps'))
+        SnackBar(content: Text('Please enter weight and reps', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor)
       );
       return;
     }
@@ -96,7 +96,7 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
       int.parse(reps);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter valid numbers for weight and reps'))
+        SnackBar(content: Text('Please enter valid numbers for weight and reps', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor)
       );
       return;
     }
@@ -323,7 +323,7 @@ class _ModoFocusPageState extends State<ModoFocusPage> with SingleTickerProvider
   void _showSeriesHistoryDialog() {
     if (allCompletedExercises.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No sets completed yet'))
+        SnackBar(content: Text('No sets completed yet.', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor)
       );
       return;
     }

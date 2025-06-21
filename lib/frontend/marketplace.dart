@@ -202,6 +202,10 @@ class _MarketplacePageState extends State<MarketplacePage> {
     );
   }
 
+  Color _getSegmentTextColor(DifficultyLevel level) {
+    return _selectedDifficulty == level ? Colors.white : textColor;
+  }
+
   Widget _buildDifficultySelector() {
     return Container(
       decoration: BoxDecoration(
@@ -213,18 +217,18 @@ class _MarketplacePageState extends State<MarketplacePage> {
         segments: [
           ButtonSegment<DifficultyLevel?>(
             value: DifficultyLevel.beginner,
-            label: Text('Beginner', style: TextStyle(color: textColor)),
-            icon: Icon(Icons.arrow_circle_up, size: 18, color: textColor),
+            label: Text('Beginner', style: TextStyle(color: _getSegmentTextColor(DifficultyLevel.beginner))),
+            icon: Icon(Icons.arrow_circle_up, size: 18, color: _getSegmentTextColor(DifficultyLevel.beginner)),
           ),
           ButtonSegment<DifficultyLevel?>(
             value: DifficultyLevel.intermediate,
-            label: Text('Average', style: TextStyle(color: textColor)),
-            icon: Icon(Icons.trending_up, size: 18, color: textColor),
+            label: Text('Average', style: TextStyle(color: _getSegmentTextColor(DifficultyLevel.intermediate))),
+            icon: Icon(Icons.trending_up, size: 18, color: _getSegmentTextColor(DifficultyLevel.intermediate)),
           ),
           ButtonSegment<DifficultyLevel?>(
             value: DifficultyLevel.expert,
-            label: Text('Expert', style: TextStyle(color: textColor)),
-            icon: Icon(Icons.star, size: 18, color: textColor),
+            label: Text('Expert', style: TextStyle(color: _getSegmentTextColor(DifficultyLevel.expert))),
+            icon: Icon(Icons.star, size: 18, color: _getSegmentTextColor(DifficultyLevel.expert)),
           ),
         ],
         selected: _selectedDifficulty != null ? {_selectedDifficulty!} : {},

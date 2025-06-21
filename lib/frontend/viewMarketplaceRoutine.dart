@@ -405,10 +405,7 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
                       MarketplaceService.addRating(widget.routine, newRating).then((result) {
                         if (result == true) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Rating saved successfully!'),
-                              duration: const Duration(seconds: 2),
-                            ),
+                            SnackBar(content: Text('Routine added to your library!', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor),
                           );
                           AchievementManager().unlockAchievement("mentor_badge", widget.routine['creatorId']);
                           AchievementManager().unlockAchievement("first_review");
@@ -431,10 +428,7 @@ class _ViewMarketplaceRoutineState extends State<ViewMarketplaceRoutine> {
                       RoutineSaver.saveRoutineFromMarketplace(widget.routine);
                       AchievementManager().unlockAchievement("legend_badge", widget.routine['creatorId']);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Routine added to your library!'),
-                          duration: const Duration(seconds: 2),
-                        ),
+                        SnackBar(content: Text('Routine added to library!', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor),
                       );
                     },
                   ),

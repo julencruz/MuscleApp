@@ -60,7 +60,7 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading routines', style: TextStyle(color: contraryTextColor))),
+          SnackBar(content: Text('Error loading routines', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor),
         );
       }
     }
@@ -108,14 +108,20 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
       loadActiveRoutineIndex();
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Deleted routine', style: TextStyle(color: contraryTextColor))),
+      SnackBar(content: Text('Deleted routine', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor)
     );
   }
 
   Future<void> clearSharedPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); 
-    print('Cleared SharedPreferences');
+    // Guarda el valor actual del theme
+    final theme = prefs.getString('theme');
+    await prefs.clear();
+    // Restaura el theme si existía
+    if (theme != null) {
+      await prefs.setString('theme', theme);
+    }
+    print('Cleared SharedPreferences (except theme)');
   }
 
   Widget _buildNoRoutinesView() {
@@ -495,7 +501,7 @@ class __RoutineCardState extends State<_RoutineCard> {
             ),
             const SizedBox(height: 24),
             _buildMenuItem(context, Icons.edit_outlined, "Edit", onTap: widget.handleEdit),
-            _buildMenuItem(context, Icons.share_outlined, "Publish to marketplace", onTap: () => _handlePublish(widget.routine)),
+            _buildMenuItem(context, Icons.storefront, "Publish to marketplace", onTap: () => _handlePublish(widget.routine)),
             _buildMenuItem(
               context,
               Icons.share,

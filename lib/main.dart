@@ -17,24 +17,6 @@ import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Configurar estilo de la barra de navegación
-  UpdateDock.updateSystemUI(const Color.fromARGB(0, 250, 250, 250));
-
-  // Inicializar Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  await NotifsService.init();
-
-  // Inicializar formato de fecha para español
-  await initializeDateFormatting('es', null);
-  
-  // On app start, reschedule notifications for the active routine
-  await _rescheduleActiveRoutineNotifications();
-  
-  await AchievementManager().initialize();
 
   // Obtener el tema guardado
   final prefs = await SharedPreferences.getInstance();
@@ -57,6 +39,24 @@ Future<void> main() async {
   } else {
     setLightThemeColors();
   }
+  
+  // Configurar estilo de la barra de navegación
+  UpdateDock.updateSystemUI(appBarBackgroundColor);
+
+  // Inicializar Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  await NotifsService.init();
+
+  // Inicializar formato de fecha para español
+  await initializeDateFormatting('es', null);
+  
+  // On app start, reschedule notifications for the active routine
+  await _rescheduleActiveRoutineNotifications();
+  
+  await AchievementManager().initialize();
 
   runApp(const MyApp());
 }

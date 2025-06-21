@@ -146,7 +146,7 @@ class _CreateScreenState extends State<CreateScreen> {
     );
     
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Workout guardado')),
+      SnackBar(content: Text('Workout saved!', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor),
     );
     
     Navigator.pushReplacement(

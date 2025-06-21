@@ -216,7 +216,7 @@ class GoalsWidget extends StatelessWidget {
   const GoalsWidget({Key? key, required this.streak}) : super(key: key);
 
   String _getStreakMessage() {
-    UpdateDock.updateSystemUI(Colors.white);
+    UpdateDock.updateSystemUI(appBarBackgroundColor);
     if (streak == 0) {
       return "Start your fitness journey! 🌱";
     } else if (streak == 1) {
@@ -931,9 +931,245 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
           ),
         ],
       ),
-      child: !hasExercises
-              ? _buildNoWorkoutTodayMessage()
-              : _buildWorkoutContent(dayName!, exercises),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Selector de día SIEMPRE visible
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    final routine = await ActiveRoutine.getActiveRoutine();
+                    List days = routine?['days'] ?? [];
+
+                    // Ordenar los días de lunes a domingo
+                    const weekOrder = [
+                      'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+                    ];
+                    days.sort((a, b) =>
+                      weekOrder.indexOf(a['weekDay']) - weekOrder.indexOf(b['weekDay'])
+                    );
+
+                    final selectedDay = await showDialog<String>(
+                      context: context,
+                      barrierDismissible: true,
+                      builder: (context) {
+                        return Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          elevation: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  cardColor,
+                                  cardColor,
+                                ],
+                              ),
+                            ),
+                            child: SizedBox(
+                              width: double.maxFinite,
+                              height: 400,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_today,
+                                        color: redColor,
+                                        size: 24,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        'Choose a day',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: textColor2,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Expanded(
+                                    child: ListView.builder(
+                                      itemCount: days.length,
+                                      itemBuilder: (context, i) {
+                                        final day = days[i];
+                                        return Container(
+                                          margin: const EdgeInsets.only(bottom: 8),
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              borderRadius: BorderRadius.circular(12),
+                                              onTap: () => Navigator.pop(context, day['weekDay']),
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 16,
+                                                  vertical: 14,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  border: Border.all(
+                                                    color: textColor.withOpacity(0.1),
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      width: 8,
+                                                      height: 8,
+                                                      decoration: BoxDecoration(
+                                                        color: redColor,
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    Text(
+                                                      day['dayName'] ?? day['weekDay'] ?? '',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight: FontWeight.w500,
+                                                        color: textColor2,
+                                                      ),
+                                                    ),
+                                                    const Spacer(),
+                                                    Icon(
+                                                      Icons.arrow_forward_ios,
+                                                      size: 14,
+                                                      color: textColor2,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: TextButton(
+                                      onPressed: () => Navigator.pop(context, null),
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 10,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                          color: hintColor,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+
+                    if (selectedDay != null) {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setString('selectedDay', selectedDay);
+                      await prefs.setString('selectedDate', DateTime.now().toIso8601String());
+
+                      final workout = await TodaysWorkout.getWorkoutForDay(selectedDay);
+                      if (workout != null) {
+                        setState(() {
+                          widget.workoutData.clear();
+                          widget.workoutData.addAll(workout);
+                          isLoading = true;
+                        });
+                        await _initializeWorkoutData();
+                      }
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: cardColor,
+                      boxShadow: [
+                        BoxShadow(
+                          color: shadowColor,
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: shadowColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: RichText(
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            text: TextSpan(
+                              style: const TextStyle(
+                                fontSize: 20,
+                                color: Color(0xFF000000),
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.6,
+                              ),
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: 'Today - ',
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: dayName.length > 15 ? '${dayName.substring(0, 15)}...' : dayName,
+                                  style: TextStyle(
+                                    color: redColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.keyboard_arrow_down,
+                          color: redColor,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Si hay ejercicios, muestra el contenido normal. Si no, muestra el mensaje de descanso.
+          hasExercises
+              ? _buildWorkoutContent(dayName, exercises)
+              : _buildNoWorkoutTodayMessage(),
+        ],
+      ),
     );
   }
 
@@ -1042,227 +1278,6 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Day selector
-              GestureDetector(
-                onTap: () async {
-                  // Obtén los días de la rutina activa
-                  final routine = await ActiveRoutine.getActiveRoutine();
-                  final days = routine?['days'] ?? [];
-                  
-                  final selectedDay = await showDialog<String>(
-                    context: context,
-                    barrierDismissible: true,
-                    builder: (context) {
-                      return Dialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        elevation: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                cardColor,
-                                cardColor,
-                              ],
-                            ),
-                          ),
-                          child: SizedBox(
-                            width: double.maxFinite,
-                            height: 400,
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.calendar_today,
-                                      color: redColor,
-                                      size: 24,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Choose a day',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: textColor2,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-                                Expanded(
-                                  child: ListView.builder(
-                                    itemCount: days.length,
-                                    itemBuilder: (context, i) {
-                                      final day = days[i];
-                                      return Container(
-                                        margin: const EdgeInsets.only(bottom: 8),
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            borderRadius: BorderRadius.circular(12),
-                                            onTap: () => Navigator.pop(context, day['weekDay']),
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 16,
-                                                vertical: 14,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: textColor.withOpacity(0.1),
-                                                  width: 1,
-                                                ),
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Container(
-                                                    width: 8,
-                                                    height: 8,
-                                                    decoration: BoxDecoration(
-                                                      color: redColor,
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 12),
-                                                  Text(
-                                                    day['weekDay'] ?? '',
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.w500,
-                                                      color: textColor2,
-                                                    ),
-                                                  ),
-                                                  const Spacer(),
-                                                  Icon(
-                                                    Icons.arrow_forward_ios,
-                                                    size: 14,
-                                                    color: textColor2,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: TextButton(
-                                    onPressed: () => Navigator.pop(context, null),
-                                    style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 20,
-                                        vertical: 10,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'Cancel',
-                                      style: TextStyle(
-                                        color: hintColor,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-
-                  if (selectedDay != null) {
-                    // Guardar el weekDay y la fecha actual
-                    final prefs = await SharedPreferences.getInstance();
-                    // Aquí selectedDay ya es el weekDay (Monday, Tuesday, etc.)
-                    await prefs.setString('selectedDay', selectedDay);
-                    await prefs.setString('selectedDate', DateTime.now().toIso8601String());
-
-                    final workout = await TodaysWorkout.getWorkoutForDay(selectedDay);
-                    if (workout != null) {
-                      setState(() {
-                        widget.workoutData.clear();
-                        widget.workoutData.addAll(workout);
-                        isLoading = true;
-                      });
-                      await _initializeWorkoutData();
-                    }
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: cardColor,
-                    boxShadow: [
-                      BoxShadow(
-                        color: shadowColor,
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                    border: Border.all(
-                      color: shadowColor,
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: RichText(
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          text: TextSpan(
-                            style: const TextStyle(
-                              fontSize: 20,
-                              color: Color(0xFF000000),
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.6,
-                            ),
-                            children: <TextSpan>[
-                              TextSpan(
-                                text: 'Today - ',
-                                style: TextStyle(
-                                  color: textColor, // Usa tu variable global (se ajusta automáticamente al tema)
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              TextSpan(
-                                text: dayName.length > 15 ? '${dayName.substring(0, 15)}...' : dayName,
-                                style: TextStyle(
-                                  color: redColor,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        Icons.keyboard_arrow_down,
-                        color: redColor,
-                        size: 20,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: 20),
-              
-              // Botones debajo del selector de día
               Row(
                 children: [
                   Expanded(
@@ -1475,7 +1490,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                     _shuffleExercise(expandedExerciseIndex!);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Select an exercise first')),
+                      SnackBar(content: Text('Select an exercise first', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor),
                     );
                   }
                 },
@@ -1484,7 +1499,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                     _restoreOriginalExercise(expandedExerciseIndex!);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Select an exercise first')),
+                      SnackBar(content: Text('Select an exercise first', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor),
                     );
                   }
                 },
@@ -2116,7 +2131,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
 
       if (newExercise['exerciseName'] == currentExercise['exerciseName']) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No equivalent exercises available')),
+          SnackBar(content: Text('No equivalent exercise found.', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor),
         );
         return;
       }
@@ -2136,7 +2151,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Choose an exercise first')));
+      ).showSnackBar(SnackBar(content: Text('Choose an exercise first', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor));
     }
   }
 
@@ -2157,8 +2172,7 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
       await _saveWorkoutProgress();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Original exercise restored!')),
-      );
+        SnackBar(content: Text('Original exercise restored', style: TextStyle(color: contraryTextColor)), backgroundColor: snackBarBackgroundColor));
     }
   }
 
