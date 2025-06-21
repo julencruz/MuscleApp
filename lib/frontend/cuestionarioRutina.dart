@@ -677,6 +677,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -685,6 +686,7 @@ class _RoutineQuestionnaireState extends State<RoutineQuestionnaire>
                           ? Icons.arrow_forward
                           : Icons.fitness_center,
                       size: 20,
+                      color: Colors.white,
                     ),
                   ],
                 ),

@@ -218,11 +218,13 @@ class _CalendarioPageState extends State<CalendarioPage> {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: isRegistered 
-                      ? redColor
-                      : (_isSameDay(date, DateTime.now()) || date.isAfter(DateTime.now())
-                          ? Colors.white
-                          : (isAllowed ? Colors.white : cardColor)),
+                    color: isRegistered
+                        ? redColor
+                        : (isFutureDate
+                            ? Colors.grey.shade200
+                            : (_isSameDay(date, DateTime.now())
+                                ? Colors.white
+                                : (isAllowed ? failedColor : cardColor))),
                     shape: BoxShape.circle,
                     border: _isSameDay(date, DateTime.now())
                         ? Border.all(color: redColor, width: 3)
@@ -242,9 +244,13 @@ class _CalendarioPageState extends State<CalendarioPage> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: isRegistered 
-                            ? textColor 
-                            : contraryTextColor,
+                        color: isRegistered
+                            ? Colors.white
+                            : (isFutureDate
+                                ? Colors.grey.shade600
+                                : (_isSameDay(date, DateTime.now())
+                                    ? redColor
+                                    : textColor2)),
                       ),
                     ),
                   ),

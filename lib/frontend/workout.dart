@@ -1621,13 +1621,31 @@ class _TodaysWorkoutWidgetState extends State<TodaysWorkoutWidget> {
                             ),
                             onPressed: () {
                               Navigator.of(context).pop();
+
+                              // Recalcula el dayIndex según el workoutData actual
+                              final routineDays = activeRoutine['days'] as List;
+                              final selectedDayName = widget.workoutData['dayName'];
+                              final focusDayIndex = routineDays.indexWhere(
+                                (day) => day['dayName'] == selectedDayName,
+                              );
+
+                              if (focusDayIndex == -1) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('No se encontró el día en la rutina.', style: TextStyle(color: contraryTextColor)),
+                                    backgroundColor: snackBarBackgroundColor,
+                                  ),
+                                );
+                                return;
+                              }
+
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ModoFocusPage(
                                     routine: activeRoutine,
                                     exerciseIndex: 0,
-                                    dayIndex: dayIndex,
+                                    dayIndex: focusDayIndex,
                                   ),
                                 ),
                               );

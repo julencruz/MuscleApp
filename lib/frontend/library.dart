@@ -167,10 +167,10 @@ class _LibraryPageState extends State<LibraryPage> with AutomaticKeepAliveClient
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              icon: const Icon(Icons.auto_awesome),
+              icon: const Icon(Icons.auto_awesome, color: Colors.white),
               label: const Text(
                 'Give me a personalized routine',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16, color: Colors.white),
               ),
             ),
             const SizedBox(height: 16),
